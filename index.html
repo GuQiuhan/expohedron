@@ -270,7 +270,7 @@
 
   <figure class="hero-fig">
     <div class="hero-plot" data-plot="hero" role="img" aria-label="Animation: Expohedron's lower and upper bounds on a posterior density, drawn from left to right."></div>
-    <figcaption class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1); observe(y ~ Laplace(x, 1), 1)</code>, 8 pieces.</figcaption>
+    <figcaption class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(1, 1); observe(y ~ Laplace(x, 1), 1)</code>.</figcaption>
   </figure>
 </header>
 
@@ -828,7 +828,7 @@ function Chart(host, { readout = null, cursor = false, size = 11 } = {}) {
 
 // ---------- hero animation: a real Expohedron posterior ----------
 (() => {
-  const prior = { mu: 0, sigma: 1 }, lik = { mu: 1, b: 1 }, n = 8;
+  const prior = { mu: 1, sigma: 1 }, lik = { mu: 1, b: 1 }, n = 8;
   const support = Expo.FAMILIES.normal.support(prior);
   const { elems } = Expo.bayes(Expo.build("normal", prior, support, n), Expo.build("laplace", lik, support, n));
   const con = Concrete.observe(Concrete.prior("normal", prior), x => Expo.pdf("laplace", lik, x), [lik.mu]);
