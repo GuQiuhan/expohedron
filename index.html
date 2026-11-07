@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Qiuhan Gu</title>
-<meta name="description" content="Qiuhan Gu — PhD student at UIUC working on probabilistic abstract interpretation and formal methods for machine learning.">
+<title>Expohedron</title>
+<meta name="description" content="Expohedron: an abstract domain for probabilistic programs, with an interactive playground running its abstraction function and abstract transformers in the browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f3efe8;
@@ -18,8 +18,11 @@
     --band-outer: rgba(26, 25, 22, .07);
     --band-inner: rgba(26, 25, 22, .14);
     --accent: #9a4f2c;
+    --good: #3f6b3a;
+    --bad: #a3362a;
     --serif: "Instrument Serif", "Times New Roman", serif;
     --sans: "Inter", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -31,6 +34,8 @@
       --band-outer: rgba(236, 231, 222, .07);
       --band-inner: rgba(236, 231, 222, .15);
       --accent: #d99a72;
+      --good: #8fbf86;
+      --bad: #e58a7c;
     }
   }
   :root[data-theme="dark"] {
@@ -42,6 +47,8 @@
     --band-outer: rgba(236, 231, 222, .07);
     --band-inner: rgba(236, 231, 222, .15);
     --accent: #d99a72;
+    --good: #8fbf86;
+    --bad: #e58a7c;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,6 +60,8 @@
     -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; text-decoration: none; }
+  button, select, input { font: inherit; color: inherit; }
+  button { background: none; border: 0; cursor: pointer; }
 
   /* ---------- nav ---------- */
   .nav {
@@ -70,101 +79,143 @@
   .wordmark { font: 500 14px/1 var(--sans); letter-spacing: .38em; text-transform: uppercase; padding-left: .38em; }
 
   /* ---------- hero ---------- */
-  .hero {
-    min-height: 100svh;
-    display: flex; flex-direction: column;
-    padding-top: 64px;
-  }
-  .hero-text { padding: 9vh 32px 0; text-align: center; }
+  .hero { min-height: 100svh; display: flex; flex-direction: column; padding-top: 64px; position: relative; }
+  .hero-text { padding: 7vh 32px 0; text-align: center; }
   .eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
-  .hero h1 {
-    font: 400 clamp(44px, 8.4vw, 128px)/.98 var(--serif);
-    letter-spacing: -.015em;
-    margin: 18px auto 22px; max-width: 14ch;
+  .hero h1 { font: 400 clamp(56px, 10vw, 148px)/.95 var(--serif); letter-spacing: -.02em; margin: 14px 0 12px; }
+  .tagline { font: italic 400 clamp(20px, 2.2vw, 28px)/1.25 var(--serif); max-width: 34ch; margin: 0 auto; }
+  .authors { margin-top: 22px; font-size: 15px; }
+  .authors a { border-bottom: 1px solid var(--rule); }
+  .authors sup { font-size: 10px; color: var(--muted); }
+  .affil { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid var(--ink); padding: 10px 18px; border-radius: 999px;
+    transition: background .2s, color .2s;
   }
-  .hero h1 em { font-style: italic; }
-  .cta {
-    display: inline-block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
-    border-bottom: 1px solid currentColor; padding-bottom: 3px;
-  }
-  .hero-plot { position: relative; flex: 1; min-height: 260px; margin-top: 4vh; }
+  .pill:hover, .pill[aria-expanded="true"] { background: var(--ink); color: var(--bg); }
+  .bibtex { max-width: 640px; margin: 18px auto 0; text-align: left; position: relative; }
+  .bibtex[hidden] { display: none; }
+  .bibtex pre { background: var(--panel); padding: 18px 20px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+  .bibtex .copy { position: absolute; top: 8px; right: 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border: 1px solid var(--rule); background: var(--bg); }
+
+  .hero-plot { position: relative; flex: 1; min-height: 220px; margin-top: 4vh; }
   .hero-plot svg { position: absolute; inset: 0; }
-  .fig-caption {
-    position: absolute; left: 32px; bottom: 18px;
-    font-size: 11px; color: var(--muted); letter-spacing: .04em;
-  }
+  .fig-caption { position: absolute; left: 32px; bottom: 18px; max-width: 70%; font-size: 11px; color: var(--muted); letter-spacing: .02em; }
   .fig-caption i { font-family: var(--serif); font-size: 14px; }
-  .scroll-hint {
-    position: absolute; right: 32px; bottom: 18px;
-    font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
-  }
+  .fig-caption code { font: 10.5px var(--mono); }
+  .scroll-hint { position: absolute; right: 32px; bottom: 18px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
 
   .reveal { opacity: 0; transform: translateY(14px); animation: rise 1s cubic-bezier(.2,.7,.2,1) forwards; }
-  .reveal.d1 { animation-delay: .1s; } .reveal.d2 { animation-delay: .25s; } .reveal.d3 { animation-delay: .4s; }
+  .reveal.d1 { animation-delay: .1s; } .reveal.d2 { animation-delay: .2s; } .reveal.d3 { animation-delay: .3s; } .reveal.d4 { animation-delay: .4s; }
   @keyframes rise { to { opacity: 1; transform: none; } }
 
-  /* ---------- plots ---------- */
+  /* ---------- hero plot ---------- */
   svg.plot { width: 100%; height: 100%; display: block; overflow: visible; }
   .plot path { fill: none; vector-effect: non-scaling-stroke; }
-  .plot .band-outer { fill: var(--band-outer); stroke: none; }
   .plot .band-inner { fill: var(--band-inner); stroke: none; }
   .plot .bound { stroke: var(--ink); stroke-width: 1; opacity: .45; }
   .plot .density { stroke: var(--ink); stroke-width: 1.6; }
-  .plot .prior { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 5; }
   .plot .axis { stroke: var(--rule); stroke-width: 1; }
   .plot .cursor { stroke: var(--accent); stroke-width: 1; }
   .plot .dot { stroke: var(--accent); stroke-width: 7; stroke-linecap: round; }
-  .plot .rug { stroke: var(--ink); stroke-width: 1; opacity: .35; }
-  .plot .obs { stroke: var(--ink); stroke-width: 5; stroke-linecap: round; opacity: .8; }
+  .plot .knot { stroke: var(--ink); stroke-width: 1; opacity: .3; }
 
-  /* ---------- sections ---------- */
-  section { padding: 120px 32px; }
-  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-bottom: 40px; border-top: 1px solid var(--rule); padding-top: 18px; }
+  /* ---------- playground ---------- */
+  section { padding: 110px 32px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-top: 1px solid var(--rule); padding-top: 18px; margin-bottom: 14px; }
   .section-head h2 { font: 400 clamp(32px, 4.4vw, 56px)/1 var(--serif); }
-  .section-head span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .section-head .replay { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .lede { color: var(--muted); max-width: 70ch; margin-bottom: 40px; }
+  .lede code { font: 13px var(--mono); color: var(--ink); }
 
-  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
-  .tile .frame { background: var(--panel); aspect-ratio: 4 / 5; padding: 14% 8%; }
-  .tile .meta { padding-top: 18px; }
-  .tile .num { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
-  .tile h3 { font: 400 30px/1.1 var(--serif); margin: 8px 0 10px; }
-  .tile p { color: var(--muted); max-width: 46ch; }
-  .tile .cta { margin-top: 16px; }
+  .lab { display: grid; grid-template-columns: 1fr 320px 1fr; gap: 20px; align-items: stretch; }
+  .card { background: var(--panel); padding: 20px; display: flex; flex-direction: column; min-width: 0; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
+  .step { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .card h3 { font: 400 24px/1.1 var(--serif); }
+  .hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 
-  .editorial { background: var(--panel); text-align: center; padding: 140px 32px; }
-  .editorial blockquote { font: italic 400 clamp(30px, 4.6vw, 64px)/1.1 var(--serif); max-width: 20ch; margin: 0 auto; }
-  .editorial cite { display: block; margin-top: 28px; font: normal 11px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .chart-wrap { position: relative; height: 320px; }
+  svg.chart { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .chart path { fill: none; }
+  .chart .band { fill: var(--band-inner); stroke: none; }
+  .chart .bound { stroke: var(--ink); stroke-width: 1; opacity: .5; }
+  .chart .density { stroke: var(--ink); stroke-width: 1.8; }
+  .chart .axis { stroke: var(--rule); }
+  .chart .knot { stroke: var(--rule); stroke-dasharray: 2 3; }
+  .chart .tick { fill: var(--muted); font: 10px var(--sans); text-anchor: middle; }
+  .chart .cursor { stroke: var(--accent); }
+  .chart .hover { stroke: var(--muted); stroke-dasharray: 3 4; }
+  .chart .atom { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
+  .chart .atom-label { fill: var(--accent); font: 11px var(--mono); }
+  .readout {
+    position: absolute; top: 2px; left: 6px; right: 6px; font: 10.5px/1.45 var(--mono); color: var(--muted);
+    pointer-events: none; white-space: pre; overflow: hidden;
+  }
 
-  .about { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; }
-  .about p { font-size: 17px; max-width: 60ch; }
-  .about p + p { margin-top: 1em; }
-  .about p a { border-bottom: 1px solid var(--rule); }
-  .index { list-style: none; }
-  .index li { border-top: 1px solid var(--rule); }
-  .index li:last-child { border-bottom: 1px solid var(--rule); }
-  .index a { display: flex; justify-content: space-between; padding: 18px 0; font: 400 26px/1.2 var(--serif); }
-  .index a span { font: 12px/2.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); transition: transform .25s; }
-  .index a:hover span { transform: translateX(6px); color: var(--ink); }
+  .controls { display: grid; gap: 8px; margin-top: 12px; font-size: 13px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .row > span:first-child { min-width: 64px; color: var(--muted); font-size: 12px; }
+  .row input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+  .row output { font: 12px var(--mono); min-width: 4ch; text-align: right; }
+  select, input[type=number] {
+    background: var(--bg); border: 1px solid var(--rule); padding: 6px 8px; font-size: 13px; border-radius: 4px; min-width: 0;
+  }
+  select { flex: 1; }
+  input[type=number] { width: 76px; font-family: var(--mono); font-size: 12px; }
+  .chip {
+    font-size: 12px; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 999px; background: var(--bg);
+    transition: border-color .2s;
+  }
+  .chip:hover { border-color: var(--ink); }
+  .chip:disabled { opacity: .4; cursor: not-allowed; }
+  .chip.primary { border-color: var(--ink); }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 12px; }
+  .stats div { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+  .stats b { display: block; font: 400 14px/1.35 var(--mono); color: var(--ink); }
+  .stats .ok b { color: var(--good); } .stats .no b { color: var(--bad); }
+
+  .code { font: 12px/1.9 var(--mono); background: var(--bg); padding: 12px 14px; flex: 1; min-height: 140px; overflow-x: auto; }
+  .code .ln { display: flex; gap: 12px; white-space: nowrap; }
+  .code .ln::before { content: attr(data-n); color: var(--muted); opacity: .6; min-width: 1.5ch; text-align: right; }
+  .code .kw { color: var(--accent); }
+  .builder { display: grid; gap: 8px; margin-top: 14px; }
+  .builder .params { display: flex; flex-wrap: wrap; gap: 8px 12px; font-size: 12px; color: var(--muted); }
+  .builder .params label { display: flex; align-items: center; gap: 6px; }
+  .prog-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .msg { min-height: 1.4em; margin-top: 10px; font-size: 12px; color: var(--bad); }
+
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 56px; }
+  .notes h4 { font: 400 22px/1.15 var(--serif); margin: 6px 0 8px; }
+  .notes p { color: var(--muted); font-size: 14px; }
+  .notes code { font: 12.5px var(--mono); color: var(--ink); }
 
   footer { padding: 28px 32px 40px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); }
 
   /* ---------- small screens ---------- */
+  @media (max-width: 1100px) {
+    .lab { grid-template-columns: 1fr; }
+  }
   @media (max-width: 760px) {
     .nav { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 14px 16px; }
     .nav .links { gap: 18px; font-size: 11px; }
-    .nav .links.right { justify-content: center; }
     .nav .links.left { order: 2; }
-    .nav .links.right { order: 3; margin-top: -4px; }
+    .nav .links.right { order: 3; margin-top: -4px; justify-content: center; }
     .nav .wordmark { order: 1; }
     .hero { padding-top: 110px; }
-    .hero-text { padding: 6vh 16px 0; }
-    .fig-caption { left: 16px; right: 16px; }
+    .hero-text { padding: 5vh 16px 0; }
+    .fig-caption { left: 16px; right: 16px; max-width: none; }
     .scroll-hint { display: none; }
-    section, .editorial { padding: 80px 16px; }
-    .tiles, .about { grid-template-columns: 1fr; gap: 40px; }
+    section { padding: 80px 16px; }
+    .card { padding: 16px; }
+    .chart-wrap { height: 280px; }
+    .notes { grid-template-columns: 1fr; }
     footer { padding: 24px 16px 32px; flex-direction: column; }
   }
-
   @media (prefers-reduced-motion: reduce) {
     .reveal { animation: none; opacity: 1; transform: none; }
     html { scroll-behavior: auto; }
@@ -175,250 +226,772 @@
 
 <nav class="nav">
   <div class="links left">
-    <a href="#research">Research</a>
-    <a href="https://guqiuhan.github.io/probabilistic-ai/">Statement</a>
+    <a href="#playground">Playground</a>
+    <a href="#top">Paper</a>
   </div>
-  <a class="wordmark" href="#top">Qiuhan Gu</a>
+  <a class="wordmark" href="#top">Expohedron</a>
   <div class="links right">
-    <a href="https://guqiuhan.github.io/publications/">Publications</a>
-    <a href="https://guqiuhan.github.io/">Main site</a>
+    <a href="https://github.com/GuQiuhan/An-Abstract-Domain-for-Probabilistic-Programming">Code</a>
+    <a href="#top">Authors</a>
   </div>
 </nav>
 
 <header class="hero" id="top">
   <div class="hero-text">
-    <p class="eyebrow reveal d1">PhD Student · UIUC Siebel School of Computing</p>
-    <h1 class="reveal d2">Knowing what we can <em>safely forget.</em></h1>
-    <a class="cta reveal d3" href="https://guqiuhan.github.io/probabilistic-ai/">Read the research statement</a>
+    <!-- TODO: venue / year -->
+    <p class="eyebrow reveal d1">Probabilistic Abstract Interpretation</p>
+    <h1 class="reveal d2">Expohedron</h1>
+    <p class="tagline reveal d2">An Abstract Domain for Probabilistic Programs</p>
+
+    <!-- TODO: confirm the full author list and affiliations -->
+    <p class="authors reveal d3">
+      <a href="https://guqiuhan.github.io/">Qiuhan Gu</a><sup>1</sup>,&ensp;
+      <a href="https://ggndpsngh.github.io/">Gagandeep Singh</a><sup>1</sup>
+    </p>
+    <p class="affil reveal d3"><sup>1</sup> University of Illinois Urbana-Champaign</p>
+
+    <div class="actions reveal d4">
+      <!-- TODO: paper URL (arXiv) -->
+      <a class="pill" href="#">Paper ↗</a>
+      <a class="pill" href="https://github.com/GuQiuhan/An-Abstract-Domain-for-Probabilistic-Programming">Code ↗</a>
+      <button class="pill" id="bib-toggle" aria-expanded="false" aria-controls="bibtex">BibTeX</button>
+      <a class="pill" href="#playground">Try it ↓</a>
+    </div>
+
+    <div class="bibtex" id="bibtex" hidden>
+      <button class="copy" id="bib-copy">Copy</button>
+      <!-- TODO: real BibTeX entry -->
+<pre id="bib-text">@article{gu2026expohedron,
+  title   = {Expohedron: An Abstract Domain for Probabilistic Programs},
+  author  = {Gu, Qiuhan and Singh, Gagandeep},
+  journal = {...},
+  year    = {2026}
+}</pre>
+    </div>
   </div>
-  <div class="hero-plot" data-plot="hero" aria-label="Animation: a probability density drawn from left to right, enclosed by nested upper and lower bounds." role="img"></div>
-  <p class="fig-caption"><i>Fig. 1</i> &nbsp;A density and its sound over- and under-approximations.</p>
-  <a class="scroll-hint" href="#research">Scroll ↓</a>
+
+  <div class="hero-plot" data-plot="hero" role="img" aria-label="Animation: Expohedron's lower and upper bounds on a posterior density, drawn from left to right."></div>
+  <p class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1.5); observe(y ~ Laplace(x, 0.8), y = 2)</code>, 10 pieces.</p>
+  <a class="scroll-hint" href="#playground">Playground ↓</a>
 </header>
 
-<section id="research">
+<section id="playground">
   <div class="section-head">
-    <h2>Research</h2>
-    <span>Formal methods × machine learning</span>
+    <h2>Playground</h2>
+    <button class="replay" id="replay">Replay ↻</button>
   </div>
-  <div class="tiles">
-    <article class="tile">
-      <div class="frame" data-plot="steps" role="img" aria-label="Animation: piecewise-constant upper and lower bounds enclosing a bimodal density."></div>
-      <div class="meta">
-        <p class="num">01 — Abstract domains</p>
-        <h3>Probabilistic Abstract Interpretation</h3>
-        <p>Sound, simpler representations of the distributions a probabilistic program induces — with guarantees on what is kept and what is forgotten.</p>
-        <a class="cta" href="https://guqiuhan.github.io/probabilistic-ai/">Statement</a>
-      </div>
-    </article>
-    <article class="tile">
-      <div class="frame" data-plot="bnn" role="img" aria-label="Animation: a predictive mean with credible bands that widen away from observed data."></div>
-      <div class="meta">
-        <p class="num">02 — Verification</p>
-        <h3>Probabilistic Programs &amp; Bayesian Neural Networks</h3>
-        <p>Formal verification for programs and models whose behaviour is a distribution, not a single answer — and learning-guided synthesis for formal methods.</p>
-        <a class="cta" href="https://guqiuhan.github.io/publications/">Publications</a>
-      </div>
-    </article>
-  </div>
-</section>
+  <p class="lede">Pick a prior, choose how many pieces the abstraction uses, and run a small probabilistic program on it. The page computes Expohedron's abstraction function and abstract transformers (the numeric path of the implementation) in your browser, and checks the result against the exact density.</p>
 
-<div class="editorial">
-  <blockquote>Being uncertain does not mean being unable to learn.</blockquote>
-  <cite>From the research statement</cite>
-</div>
+  <div class="lab">
+    <div class="card">
+      <div class="card-head"><span class="step">01 — Prior</span><h3>Abstraction</h3></div>
+      <p class="hint">Hover to read the exponential-affine bounds on each piece.</p>
+      <div class="chart-wrap" id="chart-in"></div>
+      <div class="controls">
+        <div class="row"><span>Family</span><select id="family"></select></div>
+        <div id="prior-params" class="controls" style="margin-top:0"></div>
+        <div class="row"><span>Pieces</span><input type="range" id="pieces" min="2" max="40" value="8"><output id="pieces-out">8</output></div>
+      </div>
+      <div class="stats" id="stats-in"></div>
+    </div>
 
-<section>
-  <div class="section-head">
-    <h2>About</h2>
-    <span>Urbana–Champaign, IL</span>
+    <div class="card">
+      <div class="card-head"><span class="step">02 — Program</span><h3>Statements</h3></div>
+      <div class="code" id="code"></div>
+      <div class="builder">
+        <div class="row"><span>Add</span><select id="stmt-type"></select></div>
+        <div class="params" id="stmt-params"></div>
+        <div class="prog-actions">
+          <button class="chip primary" id="append">Append</button>
+          <button class="chip" id="undo">Undo</button>
+          <button class="chip" id="reset">Reset</button>
+        </div>
+      </div>
+      <p class="msg" id="msg" role="status"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="step">03 — Output</span><h3>Abstract result</h3></div>
+      <p class="hint">Shaded: lower to upper bound. Solid: the exact density.</p>
+      <div class="chart-wrap" id="chart-out"></div>
+      <div class="stats" id="stats-out"></div>
+    </div>
   </div>
-  <div class="about">
-    <ul class="index">
-      <li><a href="https://guqiuhan.github.io/">Main site <span>Visit →</span></a></li>
-      <li><a href="https://guqiuhan.github.io/publications/">Publications <span>Read →</span></a></li>
-      <li><a href="https://guqiuhan.github.io/projects/">Projects <span>Browse →</span></a></li>
-      <li><a href="mailto:qiuhan.gu8@gmail.com">Email <span>Write →</span></a></li>
-    </ul>
+
+  <div class="notes">
     <div>
-      <p>I am a first-year PhD student in Computer Science at the <a href="https://illinois.edu/">University of Illinois Urbana-Champaign</a>, advised by <a href="https://ggndpsngh.github.io/">Prof. Gagandeep Singh</a>. My research lies at the intersection of formal methods and machine learning.</p>
-      <p>Before my PhD, I received an M.S. in Computer Science from UIUC and a B.S. in Computer Science from <a href="https://www.nju.edu.cn/en/">Nanjing University</a>.</p>
+      <span class="step">01</span>
+      <h4>Exponential-affine bounds</h4>
+      <p>The support is split into pieces. On each piece the log-density is enclosed by a secant and a tangent, so the density is enclosed by <code>exp(a·x + b)</code>: tangent above and secant below for log-concave families, the other way round for log-convex ones.</p>
+    </div>
+    <div>
+      <span class="step">02</span>
+      <h4>Sound transformers</h4>
+      <p>Bayesian inference adds prior and likelihood bounds in log space and normalises by an interval <code>Z ∈ [Z_L, Z_U]</code>. ReLU splits off an atom at 0 with bounded mass. Scaling maps <code>exp(a·x + b)</code> to <code>exp(a/c·x + b − log|c|)</code>.</p>
+    </div>
+    <div>
+      <span class="step">03</span>
+      <h4>Masses stay probabilities</h4>
+      <p>When a bound is integrated to get a probability, the result is capped at 1, so even a non-integrable tail bound, such as a flat tail, stays sound. The normaliser <code>Z</code> is integrated without the cap.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  <span>© 2026 Qiuhan Gu</span>
-  <a href="https://guqiuhan.github.io/">guqiuhan.github.io</a>
+  <span>© 2026 Expohedron authors</span>
+  <a href="https://github.com/GuQiuhan/An-Abstract-Domain-for-Probabilistic-Programming">GitHub</a>
 </footer>
 
 <script>
-(() => {
-  // ---------- math helpers ----------
-  const gauss = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
-  const grid = (a, b, n, f) => Array.from({ length: n + 1 }, (_, i) => { const x = a + (b - a) * i / n; return [x, f(x)]; });
+// =====================================================================
+// Expohedron, numeric path, ported from the ppad implementation:
+//   abstract_domain/abstraction.py  Abstraction._build_gpu
+//   abstract_domain/transformers.py BayesianInferenceTransformer._transform_gpu,
+//                                   ReluTransformer._transform_gpu, ScaleTransformer
+// A bound is exp(a·x + b); a constant c is a = 0, b = log c (c = 0 gives b = -Infinity).
+// =====================================================================
+const Expo = (() => {
+  const LOG_SQRT_2PI = 0.5 * Math.log(2 * Math.PI);
+  function lgamma(z) {
+    if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
+    const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+      -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+    z -= 1;
+    let x = c[0];
+    for (let i = 1; i < 9; i++) x += c[i] / (z + i);
+    const t = z + 7.5;
+    return LOG_SQRT_2PI + (z + 0.5) * Math.log(t) - t + Math.log(x);
+  }
 
-  // Seeded RNG so the "samples" look the same on every load.
-  let seed = 7;
-  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const normal = () => Math.sqrt(-2 * Math.log(rand())) * Math.cos(2 * Math.PI * rand());
+  // phi = log-density (constructs.py), dphi = d phi / dx, d2phi only where the build needs it.
+  const FAMILIES = {
+    normal: {
+      name: "Normal", params: [["mu", "μ", -3, 3, 0, 0.1], ["sigma", "σ", 0.3, 3, 1, 0.05]],
+      phi: (x, p) => -Math.log(Math.sqrt(2 * Math.PI) * p.sigma) - (x - p.mu) ** 2 / (2 * p.sigma ** 2),
+      dphi: (x, p) => -(x - p.mu) / p.sigma ** 2,
+      support: p => [p.mu - 4 * p.sigma, p.mu + 4 * p.sigma],
+      code: p => `Normal(${p.mu}, ${p.sigma})`,
+    },
+    laplace: {
+      name: "Laplace", params: [["mu", "μ", -3, 3, 0, 0.1], ["b", "b", 0.3, 2.5, 1, 0.05]],
+      phi: (x, p) => -Math.log(2 * p.b) - Math.abs(x - p.mu) / p.b,
+      dphi: (x, p) => -Math.sign(x - p.mu) / p.b,
+      support: p => [p.mu - 6 * p.b, p.mu + 6 * p.b],
+      code: p => `Laplace(${p.mu}, ${p.b})`,
+    },
+    logistic: {
+      name: "Logistic", params: [["mu", "μ", -3, 3, 0, 0.1], ["s", "s", 0.3, 2, 1, 0.05]],
+      phi: (x, p) => { const z = (x - p.mu) / p.s; return -Math.log(p.s) - z - 2 * Math.log1p(Math.exp(-z)); },
+      dphi: (x, p) => -Math.tanh((x - p.mu) / (2 * p.s)) / p.s,
+      support: p => [p.mu - 6 * p.s, p.mu + 6 * p.s],
+      code: p => `Logistic(${p.mu}, ${p.s})`,
+    },
+    exponential: {
+      name: "Exponential", params: [["lam", "λ", 0.3, 3, 1, 0.05]],
+      phi: (x, p) => Math.log(p.lam) - p.lam * x,
+      dphi: (x, p) => -p.lam,
+      domain: () => [0, Infinity],
+      support: p => [0, 6 / p.lam],
+      code: p => `Exponential(${p.lam})`,
+    },
+    uniform: {
+      name: "Uniform", params: [["a", "a", -4, 0, -1, 0.1], ["b", "b", 0.5, 4, 2, 0.1]],
+      phi: (x, p) => -Math.log(p.b - p.a),
+      dphi: () => 0,
+      domain: p => [p.a, p.b],
+      support: p => [p.a, p.b],
+      code: p => `Uniform(${p.a}, ${p.b})`,
+    },
+    gamma: {
+      name: "Gamma", params: [["alpha", "α", 1.2, 6, 2, 0.1], ["beta", "β", 0.5, 4, 3, 0.1]],
+      phi: (x, p) => p.alpha * Math.log(p.beta) - lgamma(p.alpha) + (p.alpha - 1) * Math.log(x) - p.beta * x,
+      dphi: (x, p) => (p.alpha - 1) / x - p.beta,
+      domain: () => [0, Infinity],
+      support: p => [Math.max(0.01, 0.15 * (p.alpha - 1) / p.beta), p.alpha / p.beta + 5 * Math.sqrt(p.alpha) / p.beta],
+      code: p => `Gamma(${p.alpha}, ${p.beta})`,
+    },
+    pareto: {
+      name: "Pareto", params: [["xm", "xₘ", 0.5, 3, 1, 0.1], ["alpha", "α", 0.5, 4, 2, 0.1]],
+      phi: (x, p) => Math.log(p.alpha) + p.alpha * Math.log(p.xm) - (p.alpha + 1) * Math.log(x),
+      dphi: (x, p) => -(p.alpha + 1) / x,
+      domain: p => [p.xm, Infinity],
+      support: p => [p.xm, p.xm + 6],
+      code: p => `Pareto(${p.xm}, ${p.alpha})`,
+    },
+    studentt: {
+      name: "Student-t", params: [["mu", "μ", -3, 3, 0, 0.1], ["sigma", "σ", 0.3, 2.5, 1, 0.05], ["v", "ν", 1, 10, 1, 0.5]],
+      phi: (x, p) => lgamma((p.v + 1) / 2) - lgamma(p.v / 2) - 0.5 * Math.log(Math.PI * p.v) - Math.log(p.sigma)
+        - (p.v + 1) / 2 * Math.log1p(((x - p.mu) / p.sigma) ** 2 / p.v),
+      dphi: (x, p) => { const d = x - p.mu; return -(p.v + 1) * d / (p.v * p.sigma ** 2 + d * d); },
+      d2phi: (x, p) => { const d = x - p.mu, s = p.v * p.sigma ** 2; return -(p.v + 1) * (s - d * d) / (s + d * d) ** 2; },
+      support: p => [p.mu - 8 * p.sigma, p.mu + 8 * p.sigma],
+      code: p => `StudentT(${p.mu}, ${p.sigma}, ${p.v})`,
+    },
+  };
+
+  const E = (a, b) => ({ a, b });
+  const C = c => ({ a: 0, b: c > 0 ? Math.log(c) : -Infinity, c: true });
+  const isConst = bd => bd.c === true;
+  const evalBound = (bd, x) => bd.b === -Infinity ? 0 : Math.exp(bd.a * x + bd.b);
+
+  function pdf(fam, p, x) {
+    const F = FAMILIES[fam], dom = F.domain ? F.domain(p) : [-Infinity, Infinity];
+    if (x < dom[0] || x > dom[1] || (fam === "gamma" && x <= 0)) return 0;
+    return Math.exp(F.phi(x, p));
+  }
+
+  const split = ([a, b], n) => {
+    const d = (b - a) / n;
+    return Array.from({ length: n }, (_, i) => [a + i * d, Math.min(b, a + (i + 1) * d)]);
+  };
+
+  // Abstraction._build_gpu
+  function build(fam, p, support, n) {
+    const F = FAMILIES[fam], phi = x => F.phi(x, p), dphi = x => F.dphi(x, p);
+    const [a, b] = support, out = [];
+    const tangent = x0 => { const g = dphi(x0); return E(g, phi(x0) - g * x0); };
+    const secTan = (l, u) => {
+      const pl = phi(l), pu = phi(u);
+      return { sec: E((pu - pl) / (u - l), (u * pl - l * pu) / (u - l)), tan: tangent((l + u) / 2) };
+    };
+    const middle = convex => split(support, n).filter(([l, u]) => l < u).forEach(([l, u]) => {
+      const { sec, tan } = secTan(l, u);
+      out.push(convex ? { lo: l, hi: u, L: tan, U: sec } : { lo: l, hi: u, L: sec, U: tan });
+    });
+
+    if (fam === "normal" || fam === "laplace" || fam === "logistic") {
+      out.push({ lo: -Infinity, hi: a, L: C(0), U: tangent(a) });
+      middle(false);
+      out.push({ lo: b, hi: Infinity, L: C(0), U: tangent(b) });
+    } else if (fam === "exponential") {
+      if (a > 0) out.push({ lo: 0, hi: a, L: E((phi(a) - phi(0)) / a, phi(0)), U: tangent(a) });
+      middle(false);
+      out.push({ lo: b, hi: Infinity, L: C(0), U: tangent(b) });
+    } else if (fam === "uniform") {
+      middle(false); // support is exactly [a, b], so there is no head or tail piece
+    } else if (fam === "gamma") {
+      if (a > 0) out.push({ lo: 0, hi: a, L: C(0), U: tangent(a) });
+      middle(false);
+      out.push({ lo: b, hi: Infinity, L: C(0), U: tangent(b) });
+    } else if (fam === "pareto") {
+      middle(true); // support starts at x_m, so there is no head piece
+      out.push({ lo: b, hi: Infinity, L: tangent(b), U: C(Math.exp(phi(b))) });
+    } else if (fam === "studentt") {
+      const mu = p.mu, phiMu = phi(mu);
+      out.push({ lo: -Infinity, hi: a, L: C(0), U: C(Math.exp(a >= mu ? Math.max(phiMu, phi(a)) : phi(a))) });
+      split(support, n).filter(([l, u]) => l < u).forEach(([l, u]) => {
+        let mx = -Infinity, mn = Infinity;
+        for (let k = 0; k < 64; k++) { const v = F.d2phi(l + (u - l) * k / 63, p); mx = Math.max(mx, v); mn = Math.min(mn, v); }
+        const { sec, tan } = secTan(l, u);
+        if (mx <= 1e-10) out.push({ lo: l, hi: u, L: sec, U: tan });
+        else if (mn >= -1e-10) out.push({ lo: l, hi: u, L: tan, U: sec });
+        else {
+          const pl = phi(l), pu = phi(u);
+          const upper = l <= mu && mu <= u ? Math.exp(phiMu) : Math.exp(Math.max(pl, pu));
+          out.push({ lo: l, hi: u, L: C(Math.exp(Math.min(pl, pu))), U: C(upper) });
+        }
+      });
+      out.push({ lo: b, hi: Infinity, L: C(0), U: C(Math.exp(b <= mu ? Math.max(phiMu, phi(b)) : phi(b))) });
+    }
+    return out.sort((x, y) => x.lo - y.lo);
+  }
+
+  // NumericExpAffine.integrate: ∫_lo^hi exp(a·x + b) dx.
+  // clip = true for probability masses (capped at 1, sound even for a non-integrable tail bound);
+  // clip = false for integrals that are not probabilities, such as the posterior normaliser Z.
+  function integrate(bd, lo, hi, clip = true) {
+    const { a, b } = bd;
+    if (b === -Infinity) return 0;
+    let v;
+    if (Math.abs(a) < 1e-15) v = isFinite(lo) && isFinite(hi) ? Math.exp(b) * (hi - lo) : Infinity;
+    else if (lo === -Infinity && hi === Infinity) v = Infinity;
+    else if (lo === -Infinity) v = a > 0 ? Math.exp(a * hi + b) / a : Infinity;
+    else if (hi === Infinity) v = a < 0 ? Math.exp(a * lo + b) / -a : Infinity;
+    else v = a > 0 ? Math.exp(a * hi + b) / a * (1 - Math.exp(a * (lo - hi)))
+                   : Math.exp(a * lo + b) / -a * (1 - Math.exp(a * (hi - lo)));
+    return clip ? Math.min(1, v) : v;
+  }
+  // nan_to_mass_lower / nan_to_mass_upper: any mass lies in [0, 1].
+  const nanToMassLower = p => Number.isNaN(p) ? 0 : p;
+  const nanToMassUpper = p => Number.isNaN(p) ? 1 : p;
+
+  // BayesianInferenceTransformer._align_partitions
+  function align(A, B) {
+    const lo = Math.max(Math.min(...A.map(e => e.lo)), Math.min(...B.map(e => e.lo)));
+    const hi = Math.min(Math.max(...A.map(e => e.hi)), Math.max(...B.map(e => e.hi)));
+    if (lo >= hi) return [[], []];
+    const pts = [...new Set([...A, ...B].flatMap(e => [e.lo, e.hi]).filter(x => x >= lo && x <= hi))].sort((x, y) => x - y);
+    const refine = list => {
+      const res = [];
+      for (let i = 0; i + 1 < pts.length; i++) {
+        const e = list.find(e => e.lo <= pts[i] && e.hi >= pts[i + 1]);
+        if (e) res.push({ lo: pts[i], hi: pts[i + 1], L: e.L, U: e.U });
+      }
+      return res;
+    };
+    return [refine(A), refine(B)];
+  }
+
+  // BayesianInferenceTransformer._transform_gpu
+  function bayes(prior, lik) {
+    const [P, Lk] = align(prior, lik);
+    if (!P.length) throw new Error("Prior and likelihood supports do not overlap.");
+    let ZL = 0, ZU = 0;
+    const un = P.map((e, i) => {
+      const l = Lk[i], tail = isConst(e.L);
+      const U = E(e.U.a + l.U.a, e.U.b + l.U.b);
+      ZU += integrate(U, e.lo, e.hi, false);
+      if (tail) return { lo: e.lo, hi: e.hi, tail, U };
+      const L = E(e.L.a + l.L.a, e.L.b + l.L.b);
+      ZL += integrate(L, e.lo, e.hi, false);
+      return { lo: e.lo, hi: e.hi, tail, L, U };
+    });
+    if (!(ZL > 0 && ZU > 0 && isFinite(ZL) && isFinite(ZU)))
+      throw new Error(`Wrong Z: Z_L = ${ZL.toPrecision(3)}, Z_U = ${ZU.toPrecision(3)}.`);
+    const lzl = Math.log(ZL), lzu = Math.log(ZU);
+    const elems = un.map(o => o.tail
+      ? { lo: o.lo, hi: o.hi, L: C(0), U: E(o.U.a, o.U.b - lzl) }
+      : { lo: o.lo, hi: o.hi, L: E(o.L.a, o.L.b - lzu), U: E(o.U.a, o.U.b - lzl) });
+    return { elems, Z: [ZL, ZU] };
+  }
+
+  // ScaleTransformer
+  function scale(elems, c) {
+    const t = bd => Object.assign(E(bd.a / c, bd.b - Math.log(Math.abs(c))), bd.c ? { c: true } : {});
+    return elems.map(e => ({
+      lo: c > 0 ? c * e.lo : c * e.hi, hi: c > 0 ? c * e.hi : c * e.lo, L: t(e.L), U: t(e.U),
+    })).sort((x, y) => x.lo - y.lo);
+  }
+
+  // ReluTransformer._transform_gpu
+  function relu(elems) {
+    let atomLo = 0, atomHi = 0;
+    const cont = [];
+    for (const e of elems) {
+      const aHi = Math.min(e.hi, 0);
+      if (e.lo < aHi) { atomLo += integrate(e.L, e.lo, aHi); atomHi += integrate(e.U, e.lo, aHi); }
+      const cLo = Math.max(e.lo, 0);
+      if (cLo < e.hi) cont.push({ lo: cLo, hi: e.hi, L: e.L, U: e.U });
+    }
+    return { elems: cont, atom: [Math.max(0, nanToMassLower(atomLo)), Math.min(1, nanToMassUpper(atomHi))] };
+  }
+
+  return { FAMILIES, pdf, build, integrate, bayes, scale, relu, evalBound, isConst };
+})();
+
+// ---------- concrete (exact) semantics, for checking and drawing ----------
+const Concrete = (() => {
+  // Composite Simpson on [lo, hi], split at the given breakpoints so kinks at piece edges are exact.
+  function integrate(f, lo, hi, breaks = [], n = 24000) {
+    const pts = [lo, ...breaks.filter(x => x > lo && x < hi), hi].sort((x, y) => x - y);
+    let total = 0;
+    for (let k = 0; k + 1 < pts.length; k++) {
+      const a = pts[k], b = pts[k + 1];
+      let m = Math.max(8, 2 * Math.ceil(n * (b - a) / (hi - lo) / 2));
+      const h = (b - a) / m;
+      let s = f(a) + f(b);
+      for (let i = 1; i < m; i++) s += (i % 2 ? 4 : 2) * f(a + i * h);
+      total += s * h / 3;
+    }
+    return total;
+  }
+  const prior = (fam, P) => {
+    const F = Expo.FAMILIES[fam], [s0, s1] = F.support(P), w = s1 - s0;
+    const dom = F.domain ? F.domain(P) : [-Infinity, Infinity];
+    return { pdf: x => Expo.pdf(fam, P, x), atom: null, range: [Math.max(dom[0], s0 - 6 * w), Math.min(dom[1], s1 + 6 * w)] };
+  };
+  function observe(c, lik, breaks) {
+    const f = x => c.pdf(x) * lik(x);
+    const Z = integrate(f, c.range[0], c.range[1], breaks);
+    return { pdf: x => f(x) / Z, atom: null, range: c.range };
+  }
+  const scale = (c, k) => ({
+    pdf: y => c.pdf(y / k) / Math.abs(k), atom: null,
+    range: k > 0 ? [c.range[0] * k, c.range[1] * k] : [c.range[1] * k, c.range[0] * k],
+  });
+  function relu(c, breaks) {
+    const atom = c.range[0] < 0 ? integrate(c.pdf, c.range[0], Math.min(0, c.range[1]), breaks) : 0;
+    return { pdf: x => x >= 0 ? c.pdf(x) : 0, atom, range: [0, Math.max(0, c.range[1])] };
+  }
+  return { integrate, prior, observe, scale, relu };
+})();
+
+// Sample bounds and exact density over a window, piece by piece (duplicate x at piece edges = jumps).
+function sampleState(abs, con, win, total = 520) {
+  const [w0, w1] = win, xs = [], L = [], U = [], p = [], idx = [];
+  abs.elems.forEach((e, i) => {
+    const lo = Math.max(e.lo, w0), hi = Math.min(e.hi, w1);
+    if (!(lo < hi)) return;
+    const m = Math.max(6, Math.round(total * (hi - lo) / (w1 - w0)));
+    for (let k = 0; k <= m; k++) {
+      const x = lo + (hi - lo) * k / m;
+      xs.push(x); L.push(Expo.evalBound(e.L, x)); U.push(Expo.evalBound(e.U, x)); p.push(con.pdf(x)); idx.push(i);
+    }
+  });
+  return { xs, L, U, p, idx, w0, w1 };
+}
+
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NS = "http://www.w3.org/2000/svg";
+const svgEl = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+// ---------- BibTeX ----------
+(() => {
+  const toggle = document.getElementById("bib-toggle"), box = document.getElementById("bibtex"), copy = document.getElementById("bib-copy");
+  toggle.addEventListener("click", () => {
+    const open = box.hidden;
+    box.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+  });
+  copy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById("bib-text").textContent);
+      copy.textContent = "Copied";
+    } catch (e) { copy.textContent = "Select & copy"; }
+    setTimeout(() => copy.textContent = "Copy", 1600);
+  });
+})();
+
+// ---------- hero animation: a real Expohedron posterior ----------
+(() => {
+  const prior = { mu: 0, sigma: 1.5 }, lik = { mu: 2, b: 0.8 }, n = 10;
+  const support = Expo.FAMILIES.normal.support(prior);
+  const { elems } = Expo.bayes(Expo.build("normal", prior, support, n), Expo.build("laplace", lik, support, n));
+  const con = Concrete.observe(Concrete.prior("normal", prior), x => Expo.pdf("laplace", lik, x), [lik.mu]);
+  const S = sampleState({ elems }, con, [-4.6, 5.6], 700);
+  const pts = k => S.xs.map((x, i) => [x, S[k][i]]);
+  const up = pts("U"), lo = pts("L"), density = pts("p");
 
   // Keep points with x <= cut, interpolating one final point exactly at cut.
-  function clip(pts, cut) {
+  function clip(list, cut) {
     const out = [];
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i];
-      if (p[0] <= cut) { out.push(p); continue; }
-      const q = pts[i - 1];
-      if (q) { const t = (cut - q[0]) / (p[0] - q[0]); out.push([cut, q[1] + t * (p[1] - q[1])]); }
+    for (let i = 0; i < list.length; i++) {
+      const q = list[i];
+      if (q[0] <= cut) { out.push(q); continue; }
+      const r = list[i - 1];
+      if (r) { const t = (cut - r[0]) / (q[0] - r[0]); out.push([cut, r[1] + t * (q[1] - r[1])]); }
       break;
     }
     return out;
   }
 
-  // ---------- scenes ----------
-  function heroScene() {
-    const f = x => 0.45 * gauss(x, -1.7, 0.7) + 0.35 * gauss(x, 1.1, 0.85) + 0.2 * gauss(x, 3.2, 0.45);
-    const a = -4.6, b = 5.2, n = 360;
-    const density = grid(a, b, n, f);
-    const up1 = grid(a, b, n, x => f(x) * 1.16 + 0.012);
-    const lo1 = grid(a, b, n, x => Math.max(0, f(x) * 0.84 - 0.008));
-    const up2 = grid(a, b, n, x => f(x) * 1.42 + 0.03);
-    const lo2 = grid(a, b, n, x => Math.max(0, f(x) * 0.6 - 0.02));
-    const comps = [[0.45, -1.7, 0.7], [0.35, 1.1, 0.85], [0.2, 3.2, 0.45]];
-    const rug = Array.from({ length: 90 }, () => {
-      let r = rand(), k = 0;
-      while (r > comps[k][0]) { r -= comps[k][0]; k++; }
-      return comps[k][1] + comps[k][2] * normal();
-    }).filter(x => x > a && x < b);
-    const ymax = Math.max(...up2.map(p => p[1]));
-    return {
-      x: [a, b], y: [-ymax * 0.05, ymax * 1.08],
-      bands: [[up2, lo2, "band-outer"], [up1, lo1, "band-inner"]],
-      lines: [[up1, "bound"], [lo1, "bound"], [density, "density"]],
-      rug, follow: density, duration: 4200,
-    };
-  }
-
-  function stepsScene() {
-    const f = x => 0.55 * gauss(x, -1.2, 0.75) + 0.45 * gauss(x, 1.6, 0.6);
-    const a = -4, b = 4, bins = 14, w = (b - a) / bins;
-    const up = [], lo = [];
-    for (let i = 0; i < bins; i++) {
-      const x0 = a + i * w, x1 = x0 + w;
-      const vals = grid(x0, x1, 30, f).map(p => p[1]);
-      const hi = Math.max(...vals) * 1.05 + 0.008, low = Math.min(...vals) * 0.92;
-      up.push([x0, hi], [x1, hi]);
-      lo.push([x0, low], [x1, low]);
-    }
-    const ymax = Math.max(...up.map(p => p[1]));
-    return {
-      x: [a, b], y: [-ymax * 0.04, ymax * 1.1],
-      bands: [[up, lo, "band-inner"]],
-      lines: [[up, "bound"], [lo, "bound"], [grid(a, b, 300, f), "density"]],
-      follow: null, duration: 3600,
-    };
-  }
-
-  function bnnScene() {
-    const a = 0, b = 10;
-    const truth = x => Math.sin(0.9 * x) + 0.35 * Math.sin(2.1 * x + 0.4);
-    const data = [[1.4, 3.6], [6.2, 8.0]];
-    const dist = x => Math.min(...data.map(([l, r]) => x < l ? l - x : x > r ? x - r : 0));
-    const sd = x => 0.1 + 0.32 * Math.min(1, dist(x) / 1.6) ** 1.5;
-    const n = 300;
-    const obs = [];
-    data.forEach(([l, r]) => { for (let i = 0; i < 9; i++) { const x = l + (r - l) * rand(); obs.push([x, truth(x) + 0.08 * normal()]); } });
-    return {
-      x: [a, b], y: [-2.6, 2.6],
-      bands: [
-        [grid(a, b, n, x => truth(x) + 3 * sd(x)), grid(a, b, n, x => truth(x) - 3 * sd(x)), "band-outer"],
-        [grid(a, b, n, x => truth(x) + 1.6 * sd(x)), grid(a, b, n, x => truth(x) - 1.6 * sd(x)), "band-inner"],
-      ],
-      lines: [[grid(a, b, n, x => 0.6 * Math.sin(0.9 * x)), "prior"], [grid(a, b, n, truth), "density"]],
-      obs, follow: grid(a, b, n, truth), duration: 3800, noAxis: true,
-    };
-  }
-
-  // ---------- renderer ----------
-  const NS = "http://www.w3.org/2000/svg";
+  const a = S.w0, b = S.w1, ymax = Math.max(...S.U) * 1.05, y0 = -ymax * 0.05, y1 = ymax * 1.05;
+  const el = document.querySelector('[data-plot="hero"]');
   const W = 1000, H = 600;
-  const HOLD = 2400, FADE = 700, GAP = 300;
-  const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", class: "plot", "aria-hidden": "true" }, el);
+  const sx = x => (x - a) / (b - a) * W;
+  const sy = y => H - (y - y0) / (y1 - y0) * H;
+  const d = list => list.length ? "M" + list.map(q => sx(q[0]).toFixed(1) + "," + sy(q[1]).toFixed(1)).join("L") : "";
+  const add = cls => svgEl("path", { class: cls }, svg);
 
-  function makePlot(el, s) {
-    const svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-    svg.setAttribute("preserveAspectRatio", "none");
-    svg.setAttribute("class", "plot");
-    svg.setAttribute("aria-hidden", "true");
-    el.appendChild(svg);
+  add("axis").setAttribute("d", `M0,${sy(0)}L${W},${sy(0)}`);
+  const knots = elems.map(e => e.lo).filter(x => x > a && x < b).map(x => {
+    const k = add("knot");
+    k.setAttribute("d", `M${sx(x).toFixed(1)},${sy(0)}V${(sy(0) - H * 0.03).toFixed(1)}`);
+    return [x, k];
+  });
+  const band = add("band-inner");
+  const lines = [[up, add("bound")], [lo, add("bound")], [density, add("density")]];
+  const cursor = add("cursor"), dot = add("dot");
 
-    const sx = x => (x - s.x[0]) / (s.x[1] - s.x[0]) * W;
-    const sy = y => H - (y - s.y[0]) / (s.y[1] - s.y[0]) * H;
-    const d = pts => pts.length ? "M" + pts.map(p => sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("L") : "";
-    const add = cls => { const p = document.createElementNS(NS, "path"); p.setAttribute("class", cls); svg.appendChild(p); return p; };
-    const dotAt = (x, y) => `M${sx(x).toFixed(1)},${sy(y).toFixed(1)}l0.01,0`;
+  function draw(t) {
+    const cut = a + (b - a) * t;
+    const u = clip(up, cut), l = clip(lo, cut).reverse();
+    band.setAttribute("d", u.length ? d(u.concat(l)) + "Z" : "");
+    lines.forEach(([list, e]) => e.setAttribute("d", d(clip(list, cut))));
+    knots.forEach(([x, e]) => e.style.display = x <= cut ? "" : "none");
+    const live = t > 0 && t < 1;
+    cursor.setAttribute("d", live ? `M${sx(cut).toFixed(1)},0V${H}` : "");
+    const tip = live ? clip(density, cut).pop() : null;
+    dot.setAttribute("d", tip ? `M${sx(tip[0]).toFixed(1)},${sy(tip[1]).toFixed(1)}l0.01,0` : "");
+  }
 
-    if (!s.noAxis) add("axis").setAttribute("d", `M0,${sy(0)}L${W},${sy(0)}`);
-    const bands = s.bands.map(([up, lo, cls]) => ({ up, lo, el: add(cls) }));
-    const lines = s.lines.map(([pts, cls]) => ({ pts, el: add(cls) }));
-    const rug = (s.rug || []).map(x => {
-      const p = add("rug");
-      p.setAttribute("d", `M${sx(x).toFixed(1)},${sy(0)}V${(sy(0) - H * 0.035).toFixed(1)}`);
-      return { x, el: p };
-    });
-    const obs = (s.obs || []).map(([x, y]) => { const p = add("obs"); p.setAttribute("d", dotAt(x, y)); return { x, el: p }; });
-    const cursor = add("cursor"), dot = add("dot");
+  if (reducedMotion) { draw(1); return; }
 
-    function draw(t) {
-      const cut = s.x[0] + (s.x[1] - s.x[0]) * t;
-      bands.forEach(b => {
-        const up = clip(b.up, cut), lo = clip(b.lo, cut).reverse();
-        b.el.setAttribute("d", up.length ? d(up.concat(lo)) + "Z" : "");
-      });
-      lines.forEach(l => l.el.setAttribute("d", d(clip(l.pts, cut))));
-      rug.forEach(r => r.el.style.display = r.x <= cut ? "" : "none");
-      obs.forEach(o => o.el.style.display = o.x <= cut ? "" : "none");
-      const live = t > 0 && t < 1;
-      cursor.setAttribute("d", live ? `M${sx(cut).toFixed(1)},0V${H}` : "");
-      const tip = live && s.follow ? clip(s.follow, cut).pop() : null;
-      dot.setAttribute("d", tip ? dotAt(tip[0], tip[1]) : "");
+  const DUR = 4200, HOLD = 2400, FADE = 700, GAP = 300, CYCLE = DUR + HOLD + FADE + GAP;
+  let visible = false, start = null;
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) start = null; }, { threshold: 0.2 }).observe(el);
+  draw(0);
+  (function frame(now) {
+    if (visible) {
+      if (start === null) start = now;
+      const e = (now - start) % CYCLE;
+      if (e < DUR) { svg.style.opacity = 1; draw(ease(e / DUR)); }
+      else if (e < DUR + HOLD) { svg.style.opacity = 1; draw(1); }
+      else if (e < DUR + HOLD + FADE) svg.style.opacity = 1 - (e - DUR - HOLD) / FADE;
+      else { svg.style.opacity = 0; draw(0); }
+    }
+    requestAnimationFrame(frame);
+  })(performance.now());
+})();
+
+// ---------- playground ----------
+(() => {
+  const $ = id => document.getElementById(id);
+  const fmt = v => !isFinite(v) ? "∞" : v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3) ? v.toExponential(2) : v.toFixed(3);
+  const boundStr = bd => {
+    if (bd.b === -Infinity) return "0";
+    if (Math.abs(bd.a) < 1e-12) return fmt(Math.exp(bd.b));
+    return `exp(${bd.a.toFixed(3)}·x ${bd.b >= 0 ? "+" : "−"} ${Math.abs(bd.b).toFixed(3)})`;
+  };
+  const defaults = fam => Object.fromEntries(Expo.FAMILIES[fam].params.map(s => [s[0], s[4]]));
+
+  const STMTS = {
+    obsNormal:  { label: "observe y ~ Normal(x, σ)", params: [["sigma", "σ", 0.2, 3, 1, 0.1], ["y", "y", -5, 5, 1.5, 0.1]],
+      code: p => `<span class="kw">observe</span>(y ~ Normal(x, ${p.sigma}), y = ${p.y})`, lik: p => ["normal", { mu: p.y, sigma: p.sigma }] },
+    obsLaplace: { label: "observe y ~ Laplace(x, b)", params: [["b", "b", 0.2, 3, 0.8, 0.1], ["y", "y", -5, 5, 1.5, 0.1]],
+      code: p => `<span class="kw">observe</span>(y ~ Laplace(x, ${p.b}), y = ${p.y})`, lik: p => ["laplace", { mu: p.y, b: p.b }] },
+    obsStudent: { label: "observe y ~ StudentT(x, σ, ν)", params: [["sigma", "σ", 0.3, 3, 1, 0.1], ["v", "ν", 1, 10, 3, 0.5], ["y", "y", -5, 5, 1.5, 0.1]],
+      code: p => `<span class="kw">observe</span>(y ~ StudentT(x, ${p.sigma}, ${p.v}), y = ${p.y})`, lik: p => ["studentt", { mu: p.y, sigma: p.sigma, v: p.v }] },
+    scale:      { label: "x = c · x", params: [["c", "c", -3, 3, 2, 0.1]], code: p => `x = ${p.c} · x` },
+    relu:       { label: "x = relu(x)", params: [], code: () => `x = <span class="kw">relu</span>(x)` },
+  };
+
+  const state = { fam: "normal", P: defaults("normal"), n: 8, prog: [] };
+
+  function finiteRange(elems) {
+    const xs = elems.flatMap(e => [e.lo, e.hi]).filter(isFinite);
+    return [Math.min(...xs), Math.max(...xs)];
+  }
+
+  function evaluate() {
+    const F = Expo.FAMILIES[state.fam], support = F.support(state.P);
+    const priorAbs = { elems: Expo.build(state.fam, state.P, support, state.n), atom: null };
+    const priorCon = Concrete.prior(state.fam, state.P);
+    let abs = priorAbs, con = priorCon, error = null;
+    for (const st of state.prog) {
+      try {
+        const breaks = abs.elems.flatMap(e => [e.lo, e.hi]).filter(isFinite);
+        if (st.type === "scale") {
+          abs = { elems: Expo.scale(abs.elems, st.p.c), atom: null };
+          con = Concrete.scale(con, st.p.c);
+        } else if (st.type === "relu") {
+          abs = Expo.relu(abs.elems);
+          con = Concrete.relu(con, breaks);
+        } else {
+          // The likelihood, as a function of x, is abstracted on the current support with the same number of pieces.
+          const [lf, lp] = STMTS[st.type].lik(st.p);
+          const lik = Expo.build(lf, lp, finiteRange(abs.elems), state.n);
+          abs = { elems: Expo.bayes(abs.elems, lik).elems, atom: null };
+          con = Concrete.observe(con, x => Expo.pdf(lf, lp, x), breaks.concat(lp.mu));
+        }
+      } catch (e) {
+        error = e.message + (e.message.startsWith("Wrong Z")
+          ? " The posterior bounds cannot be normalised: either both tails have constant upper bounds (infinite mass) or the lower bound has no mass. Try more pieces or another likelihood."
+          : "");
+        break;
+      }
+    }
+    return { input: [priorAbs, priorCon], output: [abs, con], error };
+  }
+
+  function windowOf(abs) {
+    let [lo, hi] = finiteRange(abs.elems);
+    if (abs.atom) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+    const pad = (hi - lo) * 0.08 || 1;
+    return [lo - pad, hi + pad];
+  }
+
+  function stats(el, abs, con, S) {
+    const tol = (v, w) => v <= w * (1 + 1e-6) + 1e-12;
+    let sound = S.p.every((v, i) => tol(S.L[i], v) && tol(v, S.U[i]));
+    if (abs.atom) sound = sound && tol(abs.atom[0], con.atom) && tol(con.atom, abs.atom[1]);
+    const sum = k => abs.elems.reduce((s, e) => s + Expo.integrate(e[k], e.lo, e.hi, false), 0) + (abs.atom ? abs.atom[k === "L" ? 0 : 1] : 0);
+    const cell = (k, v, cls = "") => `<div class="${cls}">${k}<b>${v}</b></div>`;
+    el.innerHTML =
+      cell("pieces", abs.elems.length) +
+      cell("∫ lower", fmt(sum("L"))) +
+      cell("∫ upper", fmt(sum("U"))) +
+      (abs.atom ? cell("P(x = 0)", `[${abs.atom[0].toFixed(3)}, ${abs.atom[1].toFixed(3)}]`) : "") +
+      cell("L ≤ p ≤ U", sound ? "sound ✓" : "violated", sound ? "ok" : "no");
+  }
+
+  // ---------- chart ----------
+  function Chart(host) {
+    const svg = svgEl("svg", { class: "chart", "aria-hidden": "true" }, host);
+    const readout = document.createElement("div");
+    readout.className = "readout";
+    host.appendChild(readout);
+    const M = { l: 6, r: 6, t: 40, b: 22 };
+    let W = 400, H = 300, S = null, abs = null, progress = 1, hoverI = null;
+
+    const knots = svgEl("g", {}, svg);
+    const axis = svgEl("path", { class: "axis" }, svg);
+    const ticks = svgEl("g", {}, svg);
+    const band = svgEl("path", { class: "band" }, svg);
+    const lPath = svgEl("path", { class: "bound" }, svg);
+    const uPath = svgEl("path", { class: "bound" }, svg);
+    const pPath = svgEl("path", { class: "density" }, svg);
+    const atomG = svgEl("g", {}, svg);
+    const cursor = svgEl("path", { class: "cursor" }, svg);
+    const hover = svgEl("path", { class: "hover" }, svg);
+
+    let ymax = 1;
+    const sx = x => M.l + (x - S.w0) / (S.w1 - S.w0) * (W - M.l - M.r);
+    const sy = y => H - M.b - Math.min(y, ymax * 1.15) / ymax * (H - M.t - M.b);
+    const ix = px => S.w0 + (px - M.l) / (W - M.l - M.r) * (S.w1 - S.w0);
+    const niceStep = span => { const p = 10 ** Math.floor(Math.log10(span)), f = span / p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p; };
+
+    function draw() {
+      if (!S) return;
+      const cut = S.w0 + (S.w1 - S.w0) * progress;
+      const pmax = Math.max(1e-9, ...S.p);
+      ymax = Math.max(pmax, ...S.U.map(u => Math.min(u, 2.5 * pmax)), ...S.L) * 1.05;
+
+      axis.setAttribute("d", `M${M.l},${sy(0)}H${W - M.r}`);
+      ticks.replaceChildren();
+      const step = niceStep((S.w1 - S.w0) / 6);
+      for (let x = Math.ceil(S.w0 / step) * step; x <= S.w1; x += step)
+        svgEl("text", { class: "tick", x: sx(x), y: H - 6 }, ticks).textContent = +x.toFixed(6);
+      knots.replaceChildren();
+      abs.elems.forEach(e => { if (e.lo > S.w0 && e.lo < S.w1) svgEl("path", { class: "knot", d: `M${sx(e.lo).toFixed(1)},${M.t}V${sy(0)}` }, knots); });
+
+      let top = "", bot = [], ls = "", us = "", ps = "";
+      for (let i = 0; i < S.xs.length && S.xs[i] <= cut; i++) {
+        const x = sx(S.xs[i]).toFixed(1), c = i ? "L" : "M";
+        const u = sy(S.U[i]).toFixed(1), l = sy(S.L[i]).toFixed(1);
+        top += c + x + "," + u; bot.push(x + "," + l);
+        us += c + x + "," + u; ls += c + x + "," + l; ps += c + x + "," + sy(S.p[i]).toFixed(1);
+      }
+      band.setAttribute("d", top ? top + "L" + bot.reverse().join("L") + "Z" : "");
+      lPath.setAttribute("d", ls); uPath.setAttribute("d", us); pPath.setAttribute("d", ps);
+      cursor.setAttribute("d", progress < 1 ? `M${sx(cut).toFixed(1)},${M.t}V${H - M.b}` : "");
+
+      atomG.replaceChildren();
+      if (abs.atom && cut >= 0) {
+        const x = sx(0);
+        svgEl("path", { class: "atom", d: `M${x},${sy(0)}V${M.t + 18}` }, atomG);
+        svgEl("text", { class: "atom-label", x: x + 8, y: M.t + 28 }, atomG).textContent = `atom at 0`;
+      }
+
+      if (hoverI !== null && progress >= 1 && S.xs.length) {
+        const i = hoverI, e = abs.elems[S.idx[i]];
+        hover.setAttribute("d", `M${sx(S.xs[i]).toFixed(1)},${M.t}V${H - M.b}`);
+        readout.textContent =
+          `x ${S.xs[i].toFixed(2)} ∈ [${fmt(e.lo)}, ${fmt(e.hi)}]   L ${fmt(S.L[i])}  p ${fmt(S.p[i])}  U ${fmt(S.U[i])}\n` +
+          `L = ${boundStr(e.L)}   U = ${boundStr(e.U)}`;
+      } else {
+        hover.setAttribute("d", "");
+        readout.textContent = abs.atom ? `P(x = 0) ∈ [${abs.atom[0].toFixed(4)}, ${abs.atom[1].toFixed(4)}]   exact ${S.atom.toFixed(4)}` : "";
+      }
     }
 
-    return { el, svg, draw, duration: s.duration, start: null, visible: false };
-  }
-
-  const scenes = { hero: heroScene, steps: stepsScene, bnn: bnnScene };
-  const plots = [...document.querySelectorAll("[data-plot]")].map(el => makePlot(el, scenes[el.dataset.plot]()));
-
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    plots.forEach(p => p.draw(1));
-    return;
-  }
-
-  plots.forEach(p => p.draw(0));
-  const io = new IntersectionObserver(entries => entries.forEach(e => {
-    const p = plots.find(p => p.el === e.target);
-    p.visible = e.isIntersecting;
-    if (!p.visible) p.start = null; // restart from the left next time it scrolls in
-  }), { threshold: 0.25 });
-  plots.forEach(p => io.observe(p.el));
-
-  function frame(now) {
-    plots.forEach(p => {
-      if (!p.visible) return;
-      if (p.start === null) p.start = now;
-      const cycle = p.duration + HOLD + FADE + GAP;
-      const e = (now - p.start) % cycle;
-      if (e < p.duration) { p.svg.style.opacity = 1; p.draw(ease(e / p.duration)); }
-      else if (e < p.duration + HOLD) { p.svg.style.opacity = 1; p.draw(1); }
-      else if (e < p.duration + HOLD + FADE) { p.svg.style.opacity = 1 - (e - p.duration - HOLD) / FADE; }
-      else { p.svg.style.opacity = 0; p.draw(0); }
+    svg.addEventListener("pointermove", ev => {
+      if (!S || !S.xs.length) return;
+      const x = ix(ev.clientX - svg.getBoundingClientRect().left);
+      let lo = 0, hi = S.xs.length - 1;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (S.xs[mid] < x) lo = mid; else hi = mid; }
+      hoverI = Math.abs(S.xs[lo] - x) < Math.abs(S.xs[hi] - x) ? lo : hi;
+      draw();
     });
-    requestAnimationFrame(frame);
+    svg.addEventListener("pointerleave", () => { hoverI = null; draw(); });
+
+    new ResizeObserver(() => {
+      W = host.clientWidth; H = host.clientHeight;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      draw();
+    }).observe(host);
+
+    return {
+      set(a, samples) { abs = a; S = samples; hoverI = null; draw(); },
+      setProgress(t) { progress = t; draw(); },
+    };
   }
-  requestAnimationFrame(frame);
+
+  // ---------- controls ----------
+  const chartIn = Chart($("chart-in")), chartOut = Chart($("chart-out"));
+
+  function rangeRow(spec, value, onInput) {
+    const [key, label, min, max, , step] = spec;
+    const row = document.createElement("div");
+    row.className = "row";
+    row.innerHTML = `<span>${label}</span><input type="range" min="${min}" max="${max}" step="${step}" value="${value}"><output>${value}</output>`;
+    const input = row.querySelector("input"), out = row.querySelector("output");
+    input.addEventListener("input", () => { out.textContent = input.value; onInput(key, +input.value); });
+    return row;
+  }
+
+  function renderPriorParams() {
+    const box = $("prior-params");
+    box.replaceChildren(...Expo.FAMILIES[state.fam].params.map(s => rangeRow(s, state.P[s[0]], (k, v) => { state.P[k] = v; update(); })));
+  }
+
+  for (const [key, F] of Object.entries(Expo.FAMILIES)) $("family").add(new Option(F.name, key));
+  $("family").addEventListener("change", e => { state.fam = e.target.value; state.P = defaults(state.fam); renderPriorParams(); update(); replay(); });
+  $("pieces").addEventListener("input", e => { state.n = +e.target.value; $("pieces-out").textContent = e.target.value; update(); });
+
+  for (const [key, st] of Object.entries(STMTS)) $("stmt-type").add(new Option(st.label, key));
+  function renderStmtParams() {
+    const st = STMTS[$("stmt-type").value];
+    $("stmt-params").innerHTML = st.params.map(([k, label, min, max, def, step]) =>
+      `<label>${label} <input type="number" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${def}"></label>`).join("");
+  }
+  $("stmt-type").addEventListener("change", renderStmtParams);
+
+  $("append").addEventListener("click", () => {
+    const type = $("stmt-type").value, st = STMTS[type], p = {};
+    for (const [k, label, min, max] of st.params) {
+      const v = +$("stmt-params").querySelector(`[data-k="${k}"]`).value;
+      if (!isFinite(v) || v < min || v > max) { $("msg").textContent = `${label} must be between ${min} and ${max}.`; return; }
+      p[k] = v;
+    }
+    if (type === "scale" && p.c === 0) { $("msg").textContent = "Scaling by zero is not supported."; return; }
+    if (state.prog.length >= 6) { $("msg").textContent = "Up to six statements; undo one first."; return; }
+    state.prog.push({ type, p });
+    update();
+    replay();
+  });
+  $("undo").addEventListener("click", () => { state.prog.pop(); update(); });
+  $("reset").addEventListener("click", () => { state.prog = []; update(); });
+
+  function renderCode() {
+    const lines = [`x ~ ${Expo.FAMILIES[state.fam].code(state.P)}`, ...state.prog.map(s => STMTS[s.type].code(s.p)), `<span class="kw">return</span> x`];
+    $("code").innerHTML = lines.map((l, i) => `<div class="ln" data-n="${i + 1}">${l}</div>`).join("");
+  }
+
+  function show(chart, statsEl, [abs, con]) {
+    const S = sampleState(abs, con, windowOf(abs));
+    S.atom = con.atom;
+    chart.set(abs, S);
+    stats(statsEl, abs, con, S);
+  }
+
+  function update() {
+    const { input, output, error } = evaluate();
+    show(chartIn, $("stats-in"), input);
+    show(chartOut, $("stats-out"), output);
+    renderCode();
+    // relu leaves an atom at 0, which the other transformers here do not take as input
+    const ended = state.prog.some(s => s.type === "relu");
+    $("msg").textContent = error || (ended ? "relu produces an atom at 0, so it ends the program here." : "");
+    $("append").disabled = ended;
+    $("undo").disabled = $("reset").disabled = state.prog.length === 0;
+  }
+
+  let raf = null;
+  function replay() {
+    if (reducedMotion) return;
+    cancelAnimationFrame(raf);
+    const t0 = performance.now(), DUR = 1600;
+    (function step(now) {
+      const t = Math.min(1, (now - t0) / DUR), e = ease(t);
+      chartIn.setProgress(e); chartOut.setProgress(e);
+      if (t < 1) raf = requestAnimationFrame(step);
+    })(t0);
+  }
+  $("replay").addEventListener("click", replay);
+
+  renderPriorParams();
+  renderStmtParams();
+  state.prog.push({ type: "obsLaplace", p: { b: 0.8, y: 1.5 } });
+  update();
+  new IntersectionObserver(([e], obs) => { if (e.isIntersecting) { replay(); obs.disconnect(); } }, { threshold: 0.3 }).observe($("chart-in"));
 })();
 </script>
 </body>
