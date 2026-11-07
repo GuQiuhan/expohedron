@@ -322,17 +322,17 @@
   <div class="notes">
     <div>
       <span class="step">01</span>
-      <h4>Exponential-affine bounds</h4>
+      <h4>Nonlinear exponential-affine bounds</h4>
       <p>The support is split into pieces. On each piece the log-density is enclosed by a secant and a tangent, so the density is enclosed by <code>exp(a·x + b)</code>: tangent above and secant below for log-concave families, the other way round for log-convex ones.</p>
     </div>
     <div>
       <span class="step">02</span>
       <h4>Sound transformers</h4>
-      <p>Bayesian inference adds prior and likelihood bounds in log space and normalises by an interval <code>Z ∈ [Z_L, Z_U]</code>. ReLU splits off an atom at 0 with bounded mass. Scaling maps <code>exp(a·x + b)</code> to <code>exp(a/c·x + b − log|c|)</code>.</p>
+      <p>Abstract transformers for high-dimensional affine operation, nonlinear ReLU operation, non-trivial Bayesian inference operation.</code>.</p>
     </div>
     <div>
       <span class="step">03</span>
-      <h4>Masses stay probabilities</h4>
+      <h4>From Bayesian Neural Networks(BNNs) to general probabilistic programs. </h4>
       <p>When a bound is integrated to get a probability, the result is capped at 1, so even a non-integrable tail bound, such as a flat tail, stays sound. The normaliser <code>Z</code> is integrated without the cap.</p>
     </div>
   </div>
