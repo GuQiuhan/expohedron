@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qiuhan Gu</title>
+<meta name="description" content="Qiuhan Gu — PhD student at UIUC working on probabilistic abstract interpretation and formal methods for machine learning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3efe8;
+    --panel: #e9e3d8;
+    --ink: #1a1916;
+    --muted: #6b675f;
+    --rule: rgba(26, 25, 22, .16);
+    --band-outer: rgba(26, 25, 22, .07);
+    --band-inner: rgba(26, 25, 22, .14);
+    --accent: #9a4f2c;
+    --serif: "Instrument Serif", "Times New Roman", serif;
+    --sans: "Inter", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141311;
+      --panel: #1c1a17;
+      --ink: #ece7de;
+      --muted: #9a948a;
+      --rule: rgba(236, 231, 222, .16);
+      --band-outer: rgba(236, 231, 222, .07);
+      --band-inner: rgba(236, 231, 222, .15);
+      --accent: #d99a72;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141311;
+    --panel: #1c1a17;
+    --ink: #ece7de;
+    --muted: #9a948a;
+    --rule: rgba(236, 231, 222, .16);
+    --band-outer: rgba(236, 231, 222, .07);
+    --band-inner: rgba(236, 231, 222, .15);
+    --accent: #d99a72;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- nav ---------- */
+  .nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 10;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    padding: 18px 32px;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav .links { display: flex; gap: 28px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .nav .links.right { justify-content: flex-end; }
+  .nav .links a { opacity: .75; transition: opacity .2s; }
+  .nav .links a:hover { opacity: 1; }
+  .wordmark { font: 500 14px/1 var(--sans); letter-spacing: .38em; text-transform: uppercase; padding-left: .38em; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    min-height: 100svh;
+    display: flex; flex-direction: column;
+    padding-top: 64px;
+  }
+  .hero-text { padding: 9vh 32px 0; text-align: center; }
+  .eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+  .hero h1 {
+    font: 400 clamp(44px, 8.4vw, 128px)/.98 var(--serif);
+    letter-spacing: -.015em;
+    margin: 18px auto 22px; max-width: 14ch;
+  }
+  .hero h1 em { font-style: italic; }
+  .cta {
+    display: inline-block; font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    border-bottom: 1px solid currentColor; padding-bottom: 3px;
+  }
+  .hero-plot { position: relative; flex: 1; min-height: 260px; margin-top: 4vh; }
+  .hero-plot svg { position: absolute; inset: 0; }
+  .fig-caption {
+    position: absolute; left: 32px; bottom: 18px;
+    font-size: 11px; color: var(--muted); letter-spacing: .04em;
+  }
+  .fig-caption i { font-family: var(--serif); font-size: 14px; }
+  .scroll-hint {
+    position: absolute; right: 32px; bottom: 18px;
+    font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+  }
+
+  .reveal { opacity: 0; transform: translateY(14px); animation: rise 1s cubic-bezier(.2,.7,.2,1) forwards; }
+  .reveal.d1 { animation-delay: .1s; } .reveal.d2 { animation-delay: .25s; } .reveal.d3 { animation-delay: .4s; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+
+  /* ---------- plots ---------- */
+  svg.plot { width: 100%; height: 100%; display: block; overflow: visible; }
+  .plot path { fill: none; vector-effect: non-scaling-stroke; }
+  .plot .band-outer { fill: var(--band-outer); stroke: none; }
+  .plot .band-inner { fill: var(--band-inner); stroke: none; }
+  .plot .bound { stroke: var(--ink); stroke-width: 1; opacity: .45; }
+  .plot .density { stroke: var(--ink); stroke-width: 1.6; }
+  .plot .prior { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 5; }
+  .plot .axis { stroke: var(--rule); stroke-width: 1; }
+  .plot .cursor { stroke: var(--accent); stroke-width: 1; }
+  .plot .dot { stroke: var(--accent); stroke-width: 7; stroke-linecap: round; }
+  .plot .rug { stroke: var(--ink); stroke-width: 1; opacity: .35; }
+  .plot .obs { stroke: var(--ink); stroke-width: 5; stroke-linecap: round; opacity: .8; }
+
+  /* ---------- sections ---------- */
+  section { padding: 120px 32px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-bottom: 40px; border-top: 1px solid var(--rule); padding-top: 18px; }
+  .section-head h2 { font: 400 clamp(32px, 4.4vw, 56px)/1 var(--serif); }
+  .section-head span { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .tile .frame { background: var(--panel); aspect-ratio: 4 / 5; padding: 14% 8%; }
+  .tile .meta { padding-top: 18px; }
+  .tile .num { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .tile h3 { font: 400 30px/1.1 var(--serif); margin: 8px 0 10px; }
+  .tile p { color: var(--muted); max-width: 46ch; }
+  .tile .cta { margin-top: 16px; }
+
+  .editorial { background: var(--panel); text-align: center; padding: 140px 32px; }
+  .editorial blockquote { font: italic 400 clamp(30px, 4.6vw, 64px)/1.1 var(--serif); max-width: 20ch; margin: 0 auto; }
+  .editorial cite { display: block; margin-top: 28px; font: normal 11px/1 var(--sans); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+  .about { display: grid; grid-template-columns: 1fr 1.4fr; gap: 64px; }
+  .about p { font-size: 17px; max-width: 60ch; }
+  .about p + p { margin-top: 1em; }
+  .about p a { border-bottom: 1px solid var(--rule); }
+  .index { list-style: none; }
+  .index li { border-top: 1px solid var(--rule); }
+  .index li:last-child { border-bottom: 1px solid var(--rule); }
+  .index a { display: flex; justify-content: space-between; padding: 18px 0; font: 400 26px/1.2 var(--serif); }
+  .index a span { font: 12px/2.4 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); transition: transform .25s; }
+  .index a:hover span { transform: translateX(6px); color: var(--ink); }
+
+  footer { padding: 28px 32px 40px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); }
+
+  /* ---------- small screens ---------- */
+  @media (max-width: 760px) {
+    .nav { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 14px 16px; }
+    .nav .links { gap: 18px; font-size: 11px; }
+    .nav .links.right { justify-content: center; }
+    .nav .links.left { order: 2; }
+    .nav .links.right { order: 3; margin-top: -4px; }
+    .nav .wordmark { order: 1; }
+    .hero { padding-top: 110px; }
+    .hero-text { padding: 6vh 16px 0; }
+    .fig-caption { left: 16px; right: 16px; }
+    .scroll-hint { display: none; }
+    section, .editorial { padding: 80px 16px; }
+    .tiles, .about { grid-template-columns: 1fr; gap: 40px; }
+    footer { padding: 24px 16px 32px; flex-direction: column; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: none; opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="links left">
+    <a href="#research">Research</a>
+    <a href="https://guqiuhan.github.io/probabilistic-ai/">Statement</a>
+  </div>
+  <a class="wordmark" href="#top">Qiuhan Gu</a>
+  <div class="links right">
+    <a href="https://guqiuhan.github.io/publications/">Publications</a>
+    <a href="https://guqiuhan.github.io/">Main site</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-text">
+    <p class="eyebrow reveal d1">PhD Student · UIUC Siebel School of Computing</p>
+    <h1 class="reveal d2">Knowing what we can <em>safely forget.</em></h1>
+    <a class="cta reveal d3" href="https://guqiuhan.github.io/probabilistic-ai/">Read the research statement</a>
+  </div>
+  <div class="hero-plot" data-plot="hero" aria-label="Animation: a probability density drawn from left to right, enclosed by nested upper and lower bounds." role="img"></div>
+  <p class="fig-caption"><i>Fig. 1</i> &nbsp;A density and its sound over- and under-approximations.</p>
+  <a class="scroll-hint" href="#research">Scroll ↓</a>
+</header>
+
+<section id="research">
+  <div class="section-head">
+    <h2>Research</h2>
+    <span>Formal methods × machine learning</span>
+  </div>
+  <div class="tiles">
+    <article class="tile">
+      <div class="frame" data-plot="steps" role="img" aria-label="Animation: piecewise-constant upper and lower bounds enclosing a bimodal density."></div>
+      <div class="meta">
+        <p class="num">01 — Abstract domains</p>
+        <h3>Probabilistic Abstract Interpretation</h3>
+        <p>Sound, simpler representations of the distributions a probabilistic program induces — with guarantees on what is kept and what is forgotten.</p>
+        <a class="cta" href="https://guqiuhan.github.io/probabilistic-ai/">Statement</a>
+      </div>
+    </article>
+    <article class="tile">
+      <div class="frame" data-plot="bnn" role="img" aria-label="Animation: a predictive mean with credible bands that widen away from observed data."></div>
+      <div class="meta">
+        <p class="num">02 — Verification</p>
+        <h3>Probabilistic Programs &amp; Bayesian Neural Networks</h3>
+        <p>Formal verification for programs and models whose behaviour is a distribution, not a single answer — and learning-guided synthesis for formal methods.</p>
+        <a class="cta" href="https://guqiuhan.github.io/publications/">Publications</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<div class="editorial">
+  <blockquote>Being uncertain does not mean being unable to learn.</blockquote>
+  <cite>From the research statement</cite>
+</div>
+
+<section>
+  <div class="section-head">
+    <h2>About</h2>
+    <span>Urbana–Champaign, IL</span>
+  </div>
+  <div class="about">
+    <ul class="index">
+      <li><a href="https://guqiuhan.github.io/">Main site <span>Visit →</span></a></li>
+      <li><a href="https://guqiuhan.github.io/publications/">Publications <span>Read →</span></a></li>
+      <li><a href="https://guqiuhan.github.io/projects/">Projects <span>Browse →</span></a></li>
+      <li><a href="mailto:qiuhan.gu8@gmail.com">Email <span>Write →</span></a></li>
+    </ul>
+    <div>
+      <p>I am a first-year PhD student in Computer Science at the <a href="https://illinois.edu/">University of Illinois Urbana-Champaign</a>, advised by <a href="https://ggndpsngh.github.io/">Prof. Gagandeep Singh</a>. My research lies at the intersection of formal methods and machine learning.</p>
+      <p>Before my PhD, I received an M.S. in Computer Science from UIUC and a B.S. in Computer Science from <a href="https://www.nju.edu.cn/en/">Nanjing University</a>.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Qiuhan Gu</span>
+  <a href="https://guqiuhan.github.io/">guqiuhan.github.io</a>
+</footer>
+
+<script>
+(() => {
+  // ---------- math helpers ----------
+  const gauss = (x, m, s) => Math.exp(-0.5 * ((x - m) / s) ** 2) / (s * Math.sqrt(2 * Math.PI));
+  const grid = (a, b, n, f) => Array.from({ length: n + 1 }, (_, i) => { const x = a + (b - a) * i / n; return [x, f(x)]; });
+
+  // Seeded RNG so the "samples" look the same on every load.
+  let seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const normal = () => Math.sqrt(-2 * Math.log(rand())) * Math.cos(2 * Math.PI * rand());
+
+  // Keep points with x <= cut, interpolating one final point exactly at cut.
+  function clip(pts, cut) {
+    const out = [];
+    for (let i = 0; i < pts.length; i++) {
+      const p = pts[i];
+      if (p[0] <= cut) { out.push(p); continue; }
+      const q = pts[i - 1];
+      if (q) { const t = (cut - q[0]) / (p[0] - q[0]); out.push([cut, q[1] + t * (p[1] - q[1])]); }
+      break;
+    }
+    return out;
+  }
+
+  // ---------- scenes ----------
+  function heroScene() {
+    const f = x => 0.45 * gauss(x, -1.7, 0.7) + 0.35 * gauss(x, 1.1, 0.85) + 0.2 * gauss(x, 3.2, 0.45);
+    const a = -4.6, b = 5.2, n = 360;
+    const density = grid(a, b, n, f);
+    const up1 = grid(a, b, n, x => f(x) * 1.16 + 0.012);
+    const lo1 = grid(a, b, n, x => Math.max(0, f(x) * 0.84 - 0.008));
+    const up2 = grid(a, b, n, x => f(x) * 1.42 + 0.03);
+    const lo2 = grid(a, b, n, x => Math.max(0, f(x) * 0.6 - 0.02));
+    const comps = [[0.45, -1.7, 0.7], [0.35, 1.1, 0.85], [0.2, 3.2, 0.45]];
+    const rug = Array.from({ length: 90 }, () => {
+      let r = rand(), k = 0;
+      while (r > comps[k][0]) { r -= comps[k][0]; k++; }
+      return comps[k][1] + comps[k][2] * normal();
+    }).filter(x => x > a && x < b);
+    const ymax = Math.max(...up2.map(p => p[1]));
+    return {
+      x: [a, b], y: [-ymax * 0.05, ymax * 1.08],
+      bands: [[up2, lo2, "band-outer"], [up1, lo1, "band-inner"]],
+      lines: [[up1, "bound"], [lo1, "bound"], [density, "density"]],
+      rug, follow: density, duration: 4200,
+    };
+  }
+
+  function stepsScene() {
+    const f = x => 0.55 * gauss(x, -1.2, 0.75) + 0.45 * gauss(x, 1.6, 0.6);
+    const a = -4, b = 4, bins = 14, w = (b - a) / bins;
+    const up = [], lo = [];
+    for (let i = 0; i < bins; i++) {
+      const x0 = a + i * w, x1 = x0 + w;
+      const vals = grid(x0, x1, 30, f).map(p => p[1]);
+      const hi = Math.max(...vals) * 1.05 + 0.008, low = Math.min(...vals) * 0.92;
+      up.push([x0, hi], [x1, hi]);
+      lo.push([x0, low], [x1, low]);
+    }
+    const ymax = Math.max(...up.map(p => p[1]));
+    return {
+      x: [a, b], y: [-ymax * 0.04, ymax * 1.1],
+      bands: [[up, lo, "band-inner"]],
+      lines: [[up, "bound"], [lo, "bound"], [grid(a, b, 300, f), "density"]],
+      follow: null, duration: 3600,
+    };
+  }
+
+  function bnnScene() {
+    const a = 0, b = 10;
+    const truth = x => Math.sin(0.9 * x) + 0.35 * Math.sin(2.1 * x + 0.4);
+    const data = [[1.4, 3.6], [6.2, 8.0]];
+    const dist = x => Math.min(...data.map(([l, r]) => x < l ? l - x : x > r ? x - r : 0));
+    const sd = x => 0.1 + 0.32 * Math.min(1, dist(x) / 1.6) ** 1.5;
+    const n = 300;
+    const obs = [];
+    data.forEach(([l, r]) => { for (let i = 0; i < 9; i++) { const x = l + (r - l) * rand(); obs.push([x, truth(x) + 0.08 * normal()]); } });
+    return {
+      x: [a, b], y: [-2.6, 2.6],
+      bands: [
+        [grid(a, b, n, x => truth(x) + 3 * sd(x)), grid(a, b, n, x => truth(x) - 3 * sd(x)), "band-outer"],
+        [grid(a, b, n, x => truth(x) + 1.6 * sd(x)), grid(a, b, n, x => truth(x) - 1.6 * sd(x)), "band-inner"],
+      ],
+      lines: [[grid(a, b, n, x => 0.6 * Math.sin(0.9 * x)), "prior"], [grid(a, b, n, truth), "density"]],
+      obs, follow: grid(a, b, n, truth), duration: 3800, noAxis: true,
+    };
+  }
+
+  // ---------- renderer ----------
+  const NS = "http://www.w3.org/2000/svg";
+  const W = 1000, H = 600;
+  const HOLD = 2400, FADE = 700, GAP = 300;
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+
+  function makePlot(el, s) {
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.setAttribute("preserveAspectRatio", "none");
+    svg.setAttribute("class", "plot");
+    svg.setAttribute("aria-hidden", "true");
+    el.appendChild(svg);
+
+    const sx = x => (x - s.x[0]) / (s.x[1] - s.x[0]) * W;
+    const sy = y => H - (y - s.y[0]) / (s.y[1] - s.y[0]) * H;
+    const d = pts => pts.length ? "M" + pts.map(p => sx(p[0]).toFixed(1) + "," + sy(p[1]).toFixed(1)).join("L") : "";
+    const add = cls => { const p = document.createElementNS(NS, "path"); p.setAttribute("class", cls); svg.appendChild(p); return p; };
+    const dotAt = (x, y) => `M${sx(x).toFixed(1)},${sy(y).toFixed(1)}l0.01,0`;
+
+    if (!s.noAxis) add("axis").setAttribute("d", `M0,${sy(0)}L${W},${sy(0)}`);
+    const bands = s.bands.map(([up, lo, cls]) => ({ up, lo, el: add(cls) }));
+    const lines = s.lines.map(([pts, cls]) => ({ pts, el: add(cls) }));
+    const rug = (s.rug || []).map(x => {
+      const p = add("rug");
+      p.setAttribute("d", `M${sx(x).toFixed(1)},${sy(0)}V${(sy(0) - H * 0.035).toFixed(1)}`);
+      return { x, el: p };
+    });
+    const obs = (s.obs || []).map(([x, y]) => { const p = add("obs"); p.setAttribute("d", dotAt(x, y)); return { x, el: p }; });
+    const cursor = add("cursor"), dot = add("dot");
+
+    function draw(t) {
+      const cut = s.x[0] + (s.x[1] - s.x[0]) * t;
+      bands.forEach(b => {
+        const up = clip(b.up, cut), lo = clip(b.lo, cut).reverse();
+        b.el.setAttribute("d", up.length ? d(up.concat(lo)) + "Z" : "");
+      });
+      lines.forEach(l => l.el.setAttribute("d", d(clip(l.pts, cut))));
+      rug.forEach(r => r.el.style.display = r.x <= cut ? "" : "none");
+      obs.forEach(o => o.el.style.display = o.x <= cut ? "" : "none");
+      const live = t > 0 && t < 1;
+      cursor.setAttribute("d", live ? `M${sx(cut).toFixed(1)},0V${H}` : "");
+      const tip = live && s.follow ? clip(s.follow, cut).pop() : null;
+      dot.setAttribute("d", tip ? dotAt(tip[0], tip[1]) : "");
+    }
+
+    return { el, svg, draw, duration: s.duration, start: null, visible: false };
+  }
+
+  const scenes = { hero: heroScene, steps: stepsScene, bnn: bnnScene };
+  const plots = [...document.querySelectorAll("[data-plot]")].map(el => makePlot(el, scenes[el.dataset.plot]()));
+
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    plots.forEach(p => p.draw(1));
+    return;
+  }
+
+  plots.forEach(p => p.draw(0));
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    const p = plots.find(p => p.el === e.target);
+    p.visible = e.isIntersecting;
+    if (!p.visible) p.start = null; // restart from the left next time it scrolls in
+  }), { threshold: 0.25 });
+  plots.forEach(p => io.observe(p.el));
+
+  function frame(now) {
+    plots.forEach(p => {
+      if (!p.visible) return;
+      if (p.start === null) p.start = now;
+      const cycle = p.duration + HOLD + FADE + GAP;
+      const e = (now - p.start) % cycle;
+      if (e < p.duration) { p.svg.style.opacity = 1; p.draw(ease(e / p.duration)); }
+      else if (e < p.duration + HOLD) { p.svg.style.opacity = 1; p.draw(1); }
+      else if (e < p.duration + HOLD + FADE) { p.svg.style.opacity = 1 - (e - p.duration - HOLD) / FADE; }
+      else { p.svg.style.opacity = 0; p.draw(0); }
+    });
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
