@@ -136,6 +136,21 @@
   .chart .f-hover { stroke: #555555; stroke-dasharray: 3 3; }
   .chart .f-dot { fill: #c05020; }
   .chart .f-atom { stroke: #000000; stroke-width: 3; stroke-linecap: round; }
+  /* Cover figure on the black hero: the paper's hues, lifted in lightness for a dark ground. */
+  .hero-plot .chart .f-fig { fill: transparent; }
+  .hero-plot .chart .f-axes { fill: #151412; }
+  .hero-plot .chart .f-grid { stroke: rgba(243, 231, 180, .08); }
+  .hero-plot .chart .f-pdf { stroke: #e2734a; }
+  .hero-plot .chart .f-lower { stroke: #7b93ff; }
+  .hero-plot .chart .f-upper { stroke: #5cbf6e; }
+  .hero-plot .chart .f-band { fill: #c9a19a; fill-opacity: .3; }
+  .hero-plot .chart .f-edge { stroke: rgba(243, 231, 180, .28); }
+  .hero-plot .chart .f-support { stroke: rgba(243, 231, 180, .18); }
+  .hero-plot .chart .f-spine { stroke: rgba(243, 231, 180, .55); }
+  .hero-plot .chart .f-text { fill: rgba(243, 231, 180, .8); }
+  .hero-plot .chart .f-legend { fill: #0b0b0a; stroke: rgba(243, 231, 180, .22); }
+  .hero-plot .chart .f-hover { stroke: rgba(243, 231, 180, .45); }
+  .hero-plot .chart .f-dot { fill: #e2734a; }
   .readout { margin-top: 6px; min-height: 3em; font: 10.5px/1.45 var(--mono); color: var(--muted); white-space: pre; overflow: hidden; }
 
   .controls { display: grid; gap: 8px; margin-top: 12px; font-size: 13px; }
@@ -255,7 +270,7 @@
 
   <figure class="hero-fig">
     <div class="hero-plot" data-plot="hero" role="img" aria-label="Animation: Expohedron's lower and upper bounds on a posterior density, drawn from left to right."></div>
-    <figcaption class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1); observe(y ~ Laplace(x, 1), 1)</code>, 10 pieces.</figcaption>
+    <figcaption class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1); observe(y ~ Laplace(x, 1), 1)</code>, 8 pieces.</figcaption>
   </figure>
 </header>
 
@@ -813,7 +828,7 @@ function Chart(host, { readout = null, cursor = false, size = 11 } = {}) {
 
 // ---------- hero animation: a real Expohedron posterior ----------
 (() => {
-  const prior = { mu: 0, sigma: 1 }, lik = { mu: 1, b: 1 }, n = 10;
+  const prior = { mu: 0, sigma: 1 }, lik = { mu: 1, b: 1 }, n = 8;
   const support = Expo.FAMILIES.normal.support(prior);
   const { elems } = Expo.bayes(Expo.build("normal", prior, support, n), Expo.build("laplace", lik, support, n));
   const con = Concrete.observe(Concrete.prior("normal", prior), x => Expo.pdf("laplace", lik, x), [lik.mu]);
