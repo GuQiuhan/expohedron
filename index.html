@@ -24,31 +24,15 @@
     --sans: "Inter", system-ui, -apple-system, sans-serif;
     --mono: "JetBrains Mono", ui-monospace, monospace;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #141311;
-      --panel: #1c1a17;
-      --ink: #ece7de;
-      --muted: #9a948a;
-      --rule: rgba(236, 231, 222, .16);
-      --band-outer: rgba(236, 231, 222, .07);
-      --band-inner: rgba(236, 231, 222, .15);
-      --accent: #d99a72;
-      --good: #8fbf86;
-      --bad: #e58a7c;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #141311;
-    --panel: #1c1a17;
-    --ink: #ece7de;
-    --muted: #9a948a;
-    --rule: rgba(236, 231, 222, .16);
-    --band-outer: rgba(236, 231, 222, .07);
-    --band-inner: rgba(236, 231, 222, .15);
-    --accent: #d99a72;
-    --good: #8fbf86;
-    --bad: #e58a7c;
+  /* Above the playground: black background with pale-yellow type. */
+  .nav, .hero {
+    --bg: #0b0b0a;
+    --panel: #1a1916;
+    --ink: #f3e7b4;
+    --muted: rgba(243, 231, 180, .62);
+    --rule: rgba(243, 231, 180, .22);
+    background: var(--bg);
+    color: var(--ink);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -82,6 +66,13 @@
   .hero { min-height: 100svh; display: flex; flex-direction: column; padding-top: 64px; position: relative; }
   .hero-text { padding: 7vh 32px 0; text-align: center; }
   .eyebrow { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+  /* The project's motto: the one place above the playground set in the paper's PDF colour. */
+  .motto {
+    display: inline-flex; align-items: center; gap: 14px;
+    font: italic 400 clamp(19px, 1.9vw, 25px)/1.2 var(--serif); letter-spacing: .01em;
+    color: #e2734a;
+  }
+  .motto::before, .motto::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .7; }
   .hero h1 { font: 400 clamp(56px, 10vw, 148px)/.95 var(--serif); letter-spacing: -.02em; margin: 14px 0 12px; }
   .tagline { font: italic 400 clamp(20px, 2.2vw, 28px)/1.25 var(--serif); max-width: 34ch; margin: 0 auto; }
   .authors { margin-top: 22px; font-size: 15px; }
@@ -101,27 +92,15 @@
   .bibtex pre { background: var(--panel); padding: 18px 20px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
   .bibtex .copy { position: absolute; top: 8px; right: 8px; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 10px; border: 1px solid var(--rule); background: var(--bg); }
 
-  .hero-plot { position: relative; flex: 1; min-height: 220px; margin-top: 4vh; }
-  .hero-plot svg { position: absolute; inset: 0; }
-  .fig-caption { position: absolute; left: 32px; bottom: 18px; max-width: 70%; font-size: 11px; color: var(--muted); letter-spacing: .02em; }
-  .fig-caption i { font-family: var(--serif); font-size: 14px; }
-  .fig-caption code { font: 10.5px var(--mono); }
-  .scroll-hint { position: absolute; right: 32px; bottom: 18px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .hero-fig { flex: none; width: min(1120px, calc(100% - 64px)); margin: 4vh auto 0; padding-bottom: 56px; }
+  .hero-plot { position: relative; width: 100%; aspect-ratio: 8 / 5; max-height: 74vh; min-height: 260px; }
+  .fig-caption { margin-top: 12px; text-align: center; font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+  .fig-caption i { font-family: var(--serif); font-size: 15px; }
+  .fig-caption code { font: 11px var(--mono); }
 
   .reveal { opacity: 0; transform: translateY(14px); animation: rise 1s cubic-bezier(.2,.7,.2,1) forwards; }
   .reveal.d1 { animation-delay: .1s; } .reveal.d2 { animation-delay: .2s; } .reveal.d3 { animation-delay: .3s; } .reveal.d4 { animation-delay: .4s; }
   @keyframes rise { to { opacity: 1; transform: none; } }
-
-  /* ---------- hero plot ---------- */
-  svg.plot { width: 100%; height: 100%; display: block; overflow: visible; }
-  .plot path { fill: none; vector-effect: non-scaling-stroke; }
-  .plot .band-inner { fill: var(--band-inner); stroke: none; }
-  .plot .bound { stroke: var(--ink); stroke-width: 1; opacity: .45; }
-  .plot .density { stroke: var(--ink); stroke-width: 1.6; }
-  .plot .axis { stroke: var(--rule); stroke-width: 1; }
-  .plot .cursor { stroke: var(--accent); stroke-width: 1; }
-  .plot .dot { stroke: var(--accent); stroke-width: 7; stroke-linecap: round; }
-  .plot .knot { stroke: var(--ink); stroke-width: 1; opacity: .3; }
 
   /* ---------- playground ---------- */
   section { padding: 110px 32px; }
@@ -131,7 +110,7 @@
   .lede { color: var(--muted); max-width: 70ch; margin-bottom: 40px; }
   .lede code { font: 13px var(--mono); color: var(--ink); }
 
-  .lab { display: grid; grid-template-columns: 1fr 320px 1fr; gap: 20px; align-items: stretch; }
+  .lab { display: grid; grid-template-columns: minmax(0, 1fr) 320px minmax(0, 1fr); gap: 20px; align-items: stretch; }
   .card { background: var(--panel); padding: 20px; display: flex; flex-direction: column; min-width: 0; }
   .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 10px; }
   .step { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
@@ -140,21 +119,24 @@
 
   .chart-wrap { position: relative; height: 320px; }
   svg.chart { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* Figure style follows the paper's matplotlib figures (ppad: abstract_domain/visualization/figures.py). */
   .chart path { fill: none; }
-  .chart .band { fill: var(--band-inner); stroke: none; }
-  .chart .bound { stroke: var(--ink); stroke-width: 1; opacity: .5; }
-  .chart .density { stroke: var(--ink); stroke-width: 1.8; }
-  .chart .axis { stroke: var(--rule); }
-  .chart .knot { stroke: var(--rule); stroke-dasharray: 2 3; }
-  .chart .tick { fill: var(--muted); font: 10px var(--sans); text-anchor: middle; }
-  .chart .cursor { stroke: var(--accent); }
-  .chart .hover { stroke: var(--muted); stroke-dasharray: 3 4; }
-  .chart .atom { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; }
-  .chart .atom-label { fill: var(--accent); font: 11px var(--mono); }
-  .readout {
-    position: absolute; top: 2px; left: 6px; right: 6px; font: 10.5px/1.45 var(--mono); color: var(--muted);
-    pointer-events: none; white-space: pre; overflow: hidden;
-  }
+  .chart .f-fig { fill: #ffffff; }
+  .chart .f-axes { fill: #f0f0f0; }
+  .chart .f-grid { stroke: #ffffff; stroke-width: 1.2; }
+  .chart .f-pdf { stroke: #c05020; stroke-width: 2.5; }
+  .chart .f-lower { stroke: blue; stroke-width: 1.8; }
+  .chart .f-upper { stroke: green; stroke-width: 1.8; }
+  .chart .f-band { fill: #442929; fill-opacity: .35; stroke: none; }
+  .chart .f-edge { stroke: #bbbbbb; stroke-width: 1; stroke-dasharray: 4 2; }
+  .chart .f-support { stroke: #dddddd; stroke-width: 1.2; stroke-dasharray: 4 2; }
+  .chart .f-spine { stroke: #000000; stroke-width: .8; }
+  .chart .f-text { fill: #000000; font-family: "DejaVu Sans", Verdana, Geneva, sans-serif; }
+  .chart .f-legend { fill: #ffffff; stroke: lightgray; }
+  .chart .f-hover { stroke: #555555; stroke-dasharray: 3 3; }
+  .chart .f-dot { fill: #c05020; }
+  .chart .f-atom { stroke: #000000; stroke-width: 3; stroke-linecap: round; }
+  .readout { margin-top: 6px; min-height: 3em; font: 10.5px/1.45 var(--mono); color: var(--muted); white-space: pre; overflow: hidden; }
 
   .controls { display: grid; gap: 8px; margin-top: 12px; font-size: 13px; }
   .row { display: flex; align-items: center; gap: 10px; }
@@ -180,7 +162,8 @@
   .stats .ok b { color: var(--good); } .stats .no b { color: var(--bad); }
 
   .code { font: 12px/1.9 var(--mono); background: var(--bg); padding: 12px 14px; flex: 1; min-height: 140px; overflow-x: auto; }
-  .code .ln { display: flex; gap: 12px; white-space: nowrap; }
+  .code .ln { display: flex; gap: 12px; }
+  .code .ln > span { min-width: 0; overflow-wrap: anywhere; }
   .code .ln::before { content: attr(data-n); color: var(--muted); opacity: .6; min-width: 1.5ch; text-align: right; }
   .code .kw { color: var(--accent); }
   .builder { display: grid; gap: 8px; margin-top: 14px; }
@@ -198,7 +181,7 @@
 
   /* ---------- small screens ---------- */
   @media (max-width: 1100px) {
-    .lab { grid-template-columns: 1fr; }
+    .lab { grid-template-columns: minmax(0, 1fr); }
   }
   @media (max-width: 760px) {
     .nav { grid-template-columns: 1fr; justify-items: center; gap: 10px; padding: 14px 16px; }
@@ -208,8 +191,8 @@
     .nav .wordmark { order: 1; }
     .hero { padding-top: 110px; }
     .hero-text { padding: 5vh 16px 0; }
-    .fig-caption { left: 16px; right: 16px; max-width: none; }
-    .scroll-hint { display: none; }
+    .hero-fig { width: calc(100% - 32px); }
+    .hero-plot { aspect-ratio: 4 / 3; }
     section { padding: 80px 16px; }
     .card { padding: 16px; }
     .chart-wrap { height: 280px; }
@@ -239,9 +222,9 @@
 <header class="hero" id="top">
   <div class="hero-text">
     <!-- TODO: venue / year -->
-    <p class="eyebrow reveal d1">Probabilistic Abstract Interpretation</p>
+    <p class="motto reveal d1">The art of certifying uncertainty</p>
     <h1 class="reveal d2">Expohedron</h1>
-    <p class="tagline reveal d2">An Abstract Domain for Probabilistic Programs</p>
+    <p class="tagline reveal d2">A Nonlinear Abstract Domain for Probabilistic Programs</p>
 
     <!-- TODO: confirm the full author list and affiliations -->
     <p class="authors reveal d3">
@@ -262,7 +245,7 @@
       <button class="copy" id="bib-copy">Copy</button>
       <!-- TODO: real BibTeX entry -->
 <pre id="bib-text">@article{gu2026expohedron,
-  title   = {Expohedron: An Abstract Domain for Probabilistic Programs},
+  title   = {Expohedron: A Nonlinear Abstract Domain for Probabilistic Programs},
   author  = {Gu, Qiuhan and Singh, Gagandeep},
   journal = {...},
   year    = {2026}
@@ -270,9 +253,10 @@
     </div>
   </div>
 
-  <div class="hero-plot" data-plot="hero" role="img" aria-label="Animation: Expohedron's lower and upper bounds on a posterior density, drawn from left to right."></div>
-  <p class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1.5); observe(y ~ Laplace(x, 0.8), y = 2)</code>, 10 pieces.</p>
-  <a class="scroll-hint" href="#playground">Playground ↓</a>
+  <figure class="hero-fig">
+    <div class="hero-plot" data-plot="hero" role="img" aria-label="Animation: Expohedron's lower and upper bounds on a posterior density, drawn from left to right."></div>
+    <figcaption class="fig-caption"><i>Fig. 1</i> &nbsp;Expohedron bounds on the posterior of <code>x ~ Normal(0, 1); observe(y ~ Laplace(x, 1), 1)</code>, 10 pieces.</figcaption>
+  </figure>
 </header>
 
 <section id="playground">
@@ -287,6 +271,7 @@
       <div class="card-head"><span class="step">01 — Prior</span><h3>Abstraction</h3></div>
       <p class="hint">Hover to read the exponential-affine bounds on each piece.</p>
       <div class="chart-wrap" id="chart-in"></div>
+      <div class="readout" id="readout-in"></div>
       <div class="controls">
         <div class="row"><span>Family</span><select id="family"></select></div>
         <div id="prior-params" class="controls" style="margin-top:0"></div>
@@ -312,8 +297,9 @@
 
     <div class="card">
       <div class="card-head"><span class="step">03 — Output</span><h3>Abstract result</h3></div>
-      <p class="hint">Shaded: lower to upper bound. Solid: the exact density.</p>
+      <p class="hint">Hover to read the bounds on each piece.</p>
       <div class="chart-wrap" id="chart-out"></div>
+      <div class="readout" id="readout-out"></div>
       <div class="stats" id="stats-out"></div>
     </div>
   </div>
@@ -658,74 +644,196 @@ const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
   });
 })();
 
+// ---------- figure (paper style) ----------
+const fmt = v => !isFinite(v) ? "∞" : v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3) ? v.toExponential(2) : v.toFixed(3);
+const boundStr = bd => {
+  if (bd.b === -Infinity) return "0";
+  if (Math.abs(bd.a) < 1e-12) return fmt(Math.exp(bd.b));
+  return `exp(${bd.a.toFixed(3)}·x ${bd.b >= 0 ? "+" : "−"} ${Math.abs(bd.b).toFixed(3)})`;
+};
+
+function finiteRange(elems) {
+  const xs = elems.flatMap(e => [e.lo, e.hi]).filter(isFinite);
+  return [Math.min(...xs), Math.max(...xs)];
+}
+
+// As in draw_abstraction, an infinite tail is drawn half as wide as its neighbouring piece.
+function windowOf(abs) {
+  const es = abs.elems, fin = es.filter(e => isFinite(e.lo) && isFinite(e.hi));
+  let [lo, hi] = finiteRange(es);
+  const pad = (hi - lo) * 0.03;
+  const first = fin[0], last = fin[fin.length - 1];
+  lo = es[0].lo === -Infinity && first ? lo - (first.hi - first.lo) / 2 : lo - pad;
+  hi = es[es.length - 1].hi === Infinity && last ? hi + (last.hi - last.lo) / 2 : hi + pad;
+  if (abs.atom) { lo = Math.min(lo, -pad); hi = Math.max(hi, pad); }
+  return [lo, hi];
+}
+
+const niceStep = span => { const p = 10 ** Math.floor(Math.log10(span)), f = span / p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p; };
+
+function Chart(host, { readout = null, cursor = false, size = 11 } = {}) {
+  const svg = svgEl("svg", { class: "chart", "aria-hidden": "true" }, host);
+  const clipId = "clip-" + Math.random().toString(36).slice(2, 9);
+  const clipRect = svgEl("rect", {}, svgEl("clipPath", { id: clipId }, svgEl("defs", {}, svg)));
+  const figBg = svgEl("rect", { class: "f-fig" }, svg);
+  const axesBg = svgEl("rect", { class: "f-axes" }, svg);
+  const grid = svgEl("g", {}, svg);
+  const plot = svgEl("g", { "clip-path": `url(#${clipId})` }, svg);
+  // Draw order follows the paper: lines and piece edges first, then the translucent band on top (zorder 3).
+  const pPath = svgEl("path", { class: "f-pdf" }, plot);
+  const lPath = svgEl("path", { class: "f-lower" }, plot);
+  const uPath = svgEl("path", { class: "f-upper" }, plot);
+  const edges = svgEl("path", { class: "f-edge" }, plot);
+  const band = svgEl("path", { class: "f-band" }, plot);
+  const atomG = svgEl("g", {}, plot);
+  const hover = svgEl("path", { class: "f-hover" }, plot);
+  const cur = svgEl("path", { class: "f-hover" }, plot);
+  const dot = svgEl("circle", { class: "f-dot", r: 0 }, plot);
+  const frame = svgEl("g", { "font-size": size }, svg);
+  const legend = svgEl("g", { "font-size": size }, svg);
+  const M = { l: size * 4.2, r: 10, t: size * 2, b: size * 2 + 14 };
+  let W = 400, H = 300, S = null, abs = null, progress = 1, hoverI = null, ix = null;
+
+  function draw() {
+    if (!S) return;
+    // Smaller type on narrow screens so the legend and labels leave room for the curves.
+    const sz = W < 520 ? Math.min(size, 10) : size;
+    Object.assign(M, { l: sz * 4.2, t: sz * 2, b: sz * 2 + 14 });
+    frame.setAttribute("font-size", sz); legend.setAttribute("font-size", sz);
+    const L = M.l, R = W - M.r, T = M.t, B = H - M.b;
+    for (const [r, x, y, w, h] of [[figBg, 0, 0, W, H], [axesBg, L, T, R - L, B - T], [clipRect, L, T, R - L, B - T]])
+      Object.entries({ x, y, width: Math.max(0, w), height: Math.max(0, h) }).forEach(([k, v]) => r.setAttribute(k, v));
+
+    const pmax = Math.max(1e-9, ...S.p);
+    const top = Math.max(pmax, ...S.U.map(u => Math.min(u, 2.5 * pmax)), ...S.L);
+    const y0 = -0.05 * top, y1 = 1.05 * top;
+    const sx = x => L + (x - S.w0) / (S.w1 - S.w0) * (R - L);
+    const sy = y => B - (Math.min(y, 2 * y1) - y0) / (y1 - y0) * (B - T);
+    ix = px => S.w0 + (px - L) / (R - L) * (S.w1 - S.w0);
+    const f1 = v => v.toFixed(1);
+
+    grid.replaceChildren(); frame.replaceChildren(); legend.replaceChildren(); atomG.replaceChildren();
+    const step = niceStep(top / 4), dec = Math.max(0, -Math.floor(Math.log10(step) + 1e-9));
+    for (let t = 0; t <= y1 + 1e-12; t += step) {
+      const y = f1(sy(t));
+      svgEl("path", { class: "f-grid", d: `M${L},${y}H${R}` }, grid);
+      svgEl("path", { class: "f-spine", d: `M${L - 3.5},${y}H${L}` }, frame);
+      svgEl("text", { class: "f-text", x: L - 6, y: +y + sz * 0.35, "text-anchor": "end" }, frame).textContent = t.toFixed(dec);
+    }
+    svgEl("path", { class: "f-spine", d: `M${L},${T}V${B}H${R}` }, frame);
+    svgEl("text", { class: "f-text", x: L + 0.05 * (R - L), y: T - sz * 0.6, "text-anchor": "middle" }, frame).textContent = "density";
+    svgEl("text", { class: "f-text", x: R, y: B + sz * 2 + 8, "text-anchor": "end" }, frame).textContent = "x";
+    for (const v of finiteRange(abs.elems)) {
+      if (v < S.w0 || v > S.w1) continue;
+      svgEl("path", { class: "f-support", d: `M${f1(sx(v))},${f1(sy(0))}V${B}` }, grid);
+      svgEl("text", { class: "f-text", x: sx(v), y: B + sz + 4, "text-anchor": "middle" }, frame).textContent = v.toFixed(2);
+    }
+
+    // Each piece is its own polyline, as in the paper (no segment joins neighbouring pieces).
+    const cutX = S.w0 + (S.w1 - S.w0) * progress;
+    let pd = "", ld = "", ud = "", bd = "", ed = "", segU = [], segL = [], last = -1, tip = null;
+    const flush = () => { if (segU.length) bd += "M" + segU.join("L") + "L" + segL.reverse().join("L") + "Z"; segU = []; segL = []; };
+    for (let i = 0; i < S.xs.length && S.xs[i] <= cutX; i++) {
+      const c = S.idx[i] !== last ? "M" : "L";
+      if (c === "M") flush();
+      last = S.idx[i];
+      const x = f1(sx(S.xs[i])), u = f1(sy(S.U[i])), l = f1(sy(S.L[i])), py = f1(sy(S.p[i]));
+      pd += c + x + "," + py; ld += c + x + "," + l; ud += c + x + "," + u;
+      segU.push(x + "," + u); segL.push(x + "," + l);
+      tip = [x, py];
+    }
+    flush();
+    abs.elems.forEach(e => {
+      if (!(e.lo < S.w1 && e.hi > S.w0)) return;
+      for (const x of [Math.max(e.lo, S.w0), Math.min(e.hi, S.w1)])
+        if (x <= cutX) ed += `M${f1(sx(x))},${f1(sy(0))}V${f1(sy(Expo.evalBound(e.U, x)))}`;
+    });
+    pPath.setAttribute("d", pd); lPath.setAttribute("d", ld); uPath.setAttribute("d", ud);
+    band.setAttribute("d", bd); edges.setAttribute("d", ed);
+
+    if (abs.atom && cutX >= 0) {
+      const x = f1(sx(0));
+      svgEl("path", { class: "f-atom", d: `M${x},${f1(sy(0))}V${T + sz * 2.2}` }, atomG);
+      svgEl("text", { class: "f-text", x: +x + 6, y: T + sz * 3, "font-sz": sz }, atomG).textContent = "atom at 0";
+    }
+
+    const live = cursor && progress > 0 && progress < 1;
+    cur.setAttribute("d", live ? `M${f1(sx(cutX))},${T}V${B}` : "");
+    if (live && tip) { dot.setAttribute("cx", tip[0]); dot.setAttribute("cy", tip[1]); dot.setAttribute("r", 4); }
+    else dot.setAttribute("r", 0);
+
+    const items = [["PDF", "f-pdf"], ["Lower bound", "f-lower"], ["Upper bound", "f-upper"]];
+    const lw = sz * 2, pad = sz * 0.6, rowH = sz * 1.5;
+    const bw = pad * 3 + lw + sz * 0.62 * 11, bh = pad * 2 + rowH * (items.length - 1) + sz;
+    const bx = R - bw - 8, by = T + 8;
+    svgEl("rect", { class: "f-legend", x: bx, y: by, width: bw, height: bh, rx: 3 }, legend);
+    items.forEach(([t, cls], k) => {
+      const y = by + pad + sz * 0.5 + k * rowH;
+      svgEl("path", { class: cls, d: `M${bx + pad},${y}h${lw}` }, legend);
+      svgEl("text", { class: "f-text", x: bx + pad * 2 + lw, y: y + sz * 0.35 }, legend).textContent = t;
+    });
+
+    if (!readout) return;
+    if (hoverI !== null && progress >= 1 && S.xs.length) {
+      const i = hoverI, e = abs.elems[S.idx[i]];
+      hover.setAttribute("d", `M${f1(sx(S.xs[i]))},${T}V${B}`);
+      readout.textContent =
+        `x ${S.xs[i].toFixed(2)} ∈ [${fmt(e.lo)}, ${fmt(e.hi)}]   L ${fmt(S.L[i])}  p ${fmt(S.p[i])}  U ${fmt(S.U[i])}\n` +
+        `L = ${boundStr(e.L)}   U = ${boundStr(e.U)}`;
+    } else {
+      hover.setAttribute("d", "");
+      readout.textContent = abs.atom ? `P(x = 0) ∈ [${abs.atom[0].toFixed(4)}, ${abs.atom[1].toFixed(4)}]   exact ${S.atom.toFixed(4)}` : "";
+    }
+  }
+
+  if (readout) {
+    svg.addEventListener("pointermove", ev => {
+      if (!S || !S.xs.length || !ix) return;
+      const x = ix(ev.clientX - svg.getBoundingClientRect().left);
+      let lo = 0, hi = S.xs.length - 1;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (S.xs[mid] < x) lo = mid; else hi = mid; }
+      hoverI = Math.abs(S.xs[lo] - x) < Math.abs(S.xs[hi] - x) ? lo : hi;
+      draw();
+    });
+    svg.addEventListener("pointerleave", () => { hoverI = null; draw(); });
+  }
+
+  new ResizeObserver(() => {
+    W = host.clientWidth; H = host.clientHeight;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    draw();
+  }).observe(host);
+
+  return {
+    svg,
+    set(a, samples) { abs = a; S = samples; hoverI = null; draw(); },
+    setProgress(t) { progress = t; draw(); },
+  };
+}
+
 // ---------- hero animation: a real Expohedron posterior ----------
 (() => {
-  const prior = { mu: 0, sigma: 1.5 }, lik = { mu: 2, b: 0.8 }, n = 10;
+  const prior = { mu: 0, sigma: 1 }, lik = { mu: 1, b: 1 }, n = 10;
   const support = Expo.FAMILIES.normal.support(prior);
   const { elems } = Expo.bayes(Expo.build("normal", prior, support, n), Expo.build("laplace", lik, support, n));
   const con = Concrete.observe(Concrete.prior("normal", prior), x => Expo.pdf("laplace", lik, x), [lik.mu]);
-  const S = sampleState({ elems }, con, [-4.6, 5.6], 700);
-  const pts = k => S.xs.map((x, i) => [x, S[k][i]]);
-  const up = pts("U"), lo = pts("L"), density = pts("p");
-
-  // Keep points with x <= cut, interpolating one final point exactly at cut.
-  function clip(list, cut) {
-    const out = [];
-    for (let i = 0; i < list.length; i++) {
-      const q = list[i];
-      if (q[0] <= cut) { out.push(q); continue; }
-      const r = list[i - 1];
-      if (r) { const t = (cut - r[0]) / (q[0] - r[0]); out.push([cut, r[1] + t * (q[1] - r[1])]); }
-      break;
-    }
-    return out;
-  }
-
-  const a = S.w0, b = S.w1, ymax = Math.max(...S.U) * 1.05, y0 = -ymax * 0.05, y1 = ymax * 1.05;
+  const abs = { elems, atom: null };
+  const S = sampleState(abs, con, windowOf(abs), 800);
   const el = document.querySelector('[data-plot="hero"]');
-  const W = 1000, H = 600;
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: "none", class: "plot", "aria-hidden": "true" }, el);
-  const sx = x => (x - a) / (b - a) * W;
-  const sy = y => H - (y - y0) / (y1 - y0) * H;
-  const d = list => list.length ? "M" + list.map(q => sx(q[0]).toFixed(1) + "," + sy(q[1]).toFixed(1)).join("L") : "";
-  const add = cls => svgEl("path", { class: cls }, svg);
+  const chart = Chart(el, { cursor: true, size: 13 });
+  chart.set(abs, S);
+  if (reducedMotion) return;
 
-  add("axis").setAttribute("d", `M0,${sy(0)}L${W},${sy(0)}`);
-  const knots = elems.map(e => e.lo).filter(x => x > a && x < b).map(x => {
-    const k = add("knot");
-    k.setAttribute("d", `M${sx(x).toFixed(1)},${sy(0)}V${(sy(0) - H * 0.03).toFixed(1)}`);
-    return [x, k];
-  });
-  const band = add("band-inner");
-  const lines = [[up, add("bound")], [lo, add("bound")], [density, add("density")]];
-  const cursor = add("cursor"), dot = add("dot");
-
-  function draw(t) {
-    const cut = a + (b - a) * t;
-    const u = clip(up, cut), l = clip(lo, cut).reverse();
-    band.setAttribute("d", u.length ? d(u.concat(l)) + "Z" : "");
-    lines.forEach(([list, e]) => e.setAttribute("d", d(clip(list, cut))));
-    knots.forEach(([x, e]) => e.style.display = x <= cut ? "" : "none");
-    const live = t > 0 && t < 1;
-    cursor.setAttribute("d", live ? `M${sx(cut).toFixed(1)},0V${H}` : "");
-    const tip = live ? clip(density, cut).pop() : null;
-    dot.setAttribute("d", tip ? `M${sx(tip[0]).toFixed(1)},${sy(tip[1]).toFixed(1)}l0.01,0` : "");
-  }
-
-  if (reducedMotion) { draw(1); return; }
-
-  const DUR = 4200, HOLD = 2400, FADE = 700, GAP = 300, CYCLE = DUR + HOLD + FADE + GAP;
+  // Draw left to right, hold, then redraw; axes, grid and legend stay in place throughout.
+  const DUR = 4200, HOLD = 3000, CYCLE = DUR + HOLD;
   let visible = false, start = null;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (!visible) start = null; }, { threshold: 0.2 }).observe(el);
-  draw(0);
+  chart.setProgress(0);
   (function frame(now) {
     if (visible) {
       if (start === null) start = now;
       const e = (now - start) % CYCLE;
-      if (e < DUR) { svg.style.opacity = 1; draw(ease(e / DUR)); }
-      else if (e < DUR + HOLD) { svg.style.opacity = 1; draw(1); }
-      else if (e < DUR + HOLD + FADE) svg.style.opacity = 1 - (e - DUR - HOLD) / FADE;
-      else { svg.style.opacity = 0; draw(0); }
+      chart.setProgress(e < DUR ? ease(e / DUR) : 1);
     }
     requestAnimationFrame(frame);
   })(performance.now());
@@ -734,31 +842,20 @@ const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 // ---------- playground ----------
 (() => {
   const $ = id => document.getElementById(id);
-  const fmt = v => !isFinite(v) ? "∞" : v !== 0 && (Math.abs(v) >= 1e4 || Math.abs(v) < 1e-3) ? v.toExponential(2) : v.toFixed(3);
-  const boundStr = bd => {
-    if (bd.b === -Infinity) return "0";
-    if (Math.abs(bd.a) < 1e-12) return fmt(Math.exp(bd.b));
-    return `exp(${bd.a.toFixed(3)}·x ${bd.b >= 0 ? "+" : "−"} ${Math.abs(bd.b).toFixed(3)})`;
-  };
   const defaults = fam => Object.fromEntries(Expo.FAMILIES[fam].params.map(s => [s[0], s[4]]));
 
   const STMTS = {
     obsNormal:  { label: "observe y ~ Normal(x, σ)", params: [["sigma", "σ", 0.2, 3, 1, 0.1], ["y", "y", -5, 5, 1.5, 0.1]],
-      code: p => `<span class="kw">observe</span>(y ~ Normal(x, ${p.sigma}), y = ${p.y})`, lik: p => ["normal", { mu: p.y, sigma: p.sigma }] },
+      code: p => `<span class="kw">observe</span>(y ~ Normal(x, ${p.sigma}), ${p.y})`, lik: p => ["normal", { mu: p.y, sigma: p.sigma }] },
     obsLaplace: { label: "observe y ~ Laplace(x, b)", params: [["b", "b", 0.2, 3, 0.8, 0.1], ["y", "y", -5, 5, 1.5, 0.1]],
-      code: p => `<span class="kw">observe</span>(y ~ Laplace(x, ${p.b}), y = ${p.y})`, lik: p => ["laplace", { mu: p.y, b: p.b }] },
+      code: p => `<span class="kw">observe</span>(y ~ Laplace(x, ${p.b}), ${p.y})`, lik: p => ["laplace", { mu: p.y, b: p.b }] },
     obsStudent: { label: "observe y ~ StudentT(x, σ, ν)", params: [["sigma", "σ", 0.3, 3, 1, 0.1], ["v", "ν", 1, 10, 3, 0.5], ["y", "y", -5, 5, 1.5, 0.1]],
-      code: p => `<span class="kw">observe</span>(y ~ StudentT(x, ${p.sigma}, ${p.v}), y = ${p.y})`, lik: p => ["studentt", { mu: p.y, sigma: p.sigma, v: p.v }] },
+      code: p => `<span class="kw">observe</span>(y ~ StudentT(x, ${p.sigma}, ${p.v}), ${p.y})`, lik: p => ["studentt", { mu: p.y, sigma: p.sigma, v: p.v }] },
     scale:      { label: "x = c · x", params: [["c", "c", -3, 3, 2, 0.1]], code: p => `x = ${p.c} · x` },
     relu:       { label: "x = relu(x)", params: [], code: () => `x = <span class="kw">relu</span>(x)` },
   };
 
   const state = { fam: "normal", P: defaults("normal"), n: 8, prog: [] };
-
-  function finiteRange(elems) {
-    const xs = elems.flatMap(e => [e.lo, e.hi]).filter(isFinite);
-    return [Math.min(...xs), Math.max(...xs)];
-  }
 
   function evaluate() {
     const F = Expo.FAMILIES[state.fam], support = F.support(state.P);
@@ -791,13 +888,6 @@ const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
     return { input: [priorAbs, priorCon], output: [abs, con], error };
   }
 
-  function windowOf(abs) {
-    let [lo, hi] = finiteRange(abs.elems);
-    if (abs.atom) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
-    const pad = (hi - lo) * 0.08 || 1;
-    return [lo - pad, hi + pad];
-  }
-
   function stats(el, abs, con, S) {
     const tol = (v, w) => v <= w * (1 + 1e-6) + 1e-12;
     let sound = S.p.every((v, i) => tol(S.L[i], v) && tol(v, S.U[i]));
@@ -812,100 +902,8 @@ const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
       cell("L ≤ p ≤ U", sound ? "sound ✓" : "violated", sound ? "ok" : "no");
   }
 
-  // ---------- chart ----------
-  function Chart(host) {
-    const svg = svgEl("svg", { class: "chart", "aria-hidden": "true" }, host);
-    const readout = document.createElement("div");
-    readout.className = "readout";
-    host.appendChild(readout);
-    const M = { l: 6, r: 6, t: 40, b: 22 };
-    let W = 400, H = 300, S = null, abs = null, progress = 1, hoverI = null;
-
-    const knots = svgEl("g", {}, svg);
-    const axis = svgEl("path", { class: "axis" }, svg);
-    const ticks = svgEl("g", {}, svg);
-    const band = svgEl("path", { class: "band" }, svg);
-    const lPath = svgEl("path", { class: "bound" }, svg);
-    const uPath = svgEl("path", { class: "bound" }, svg);
-    const pPath = svgEl("path", { class: "density" }, svg);
-    const atomG = svgEl("g", {}, svg);
-    const cursor = svgEl("path", { class: "cursor" }, svg);
-    const hover = svgEl("path", { class: "hover" }, svg);
-
-    let ymax = 1;
-    const sx = x => M.l + (x - S.w0) / (S.w1 - S.w0) * (W - M.l - M.r);
-    const sy = y => H - M.b - Math.min(y, ymax * 1.15) / ymax * (H - M.t - M.b);
-    const ix = px => S.w0 + (px - M.l) / (W - M.l - M.r) * (S.w1 - S.w0);
-    const niceStep = span => { const p = 10 ** Math.floor(Math.log10(span)), f = span / p; return (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p; };
-
-    function draw() {
-      if (!S) return;
-      const cut = S.w0 + (S.w1 - S.w0) * progress;
-      const pmax = Math.max(1e-9, ...S.p);
-      ymax = Math.max(pmax, ...S.U.map(u => Math.min(u, 2.5 * pmax)), ...S.L) * 1.05;
-
-      axis.setAttribute("d", `M${M.l},${sy(0)}H${W - M.r}`);
-      ticks.replaceChildren();
-      const step = niceStep((S.w1 - S.w0) / 6);
-      for (let x = Math.ceil(S.w0 / step) * step; x <= S.w1; x += step)
-        svgEl("text", { class: "tick", x: sx(x), y: H - 6 }, ticks).textContent = +x.toFixed(6);
-      knots.replaceChildren();
-      abs.elems.forEach(e => { if (e.lo > S.w0 && e.lo < S.w1) svgEl("path", { class: "knot", d: `M${sx(e.lo).toFixed(1)},${M.t}V${sy(0)}` }, knots); });
-
-      let top = "", bot = [], ls = "", us = "", ps = "";
-      for (let i = 0; i < S.xs.length && S.xs[i] <= cut; i++) {
-        const x = sx(S.xs[i]).toFixed(1), c = i ? "L" : "M";
-        const u = sy(S.U[i]).toFixed(1), l = sy(S.L[i]).toFixed(1);
-        top += c + x + "," + u; bot.push(x + "," + l);
-        us += c + x + "," + u; ls += c + x + "," + l; ps += c + x + "," + sy(S.p[i]).toFixed(1);
-      }
-      band.setAttribute("d", top ? top + "L" + bot.reverse().join("L") + "Z" : "");
-      lPath.setAttribute("d", ls); uPath.setAttribute("d", us); pPath.setAttribute("d", ps);
-      cursor.setAttribute("d", progress < 1 ? `M${sx(cut).toFixed(1)},${M.t}V${H - M.b}` : "");
-
-      atomG.replaceChildren();
-      if (abs.atom && cut >= 0) {
-        const x = sx(0);
-        svgEl("path", { class: "atom", d: `M${x},${sy(0)}V${M.t + 18}` }, atomG);
-        svgEl("text", { class: "atom-label", x: x + 8, y: M.t + 28 }, atomG).textContent = `atom at 0`;
-      }
-
-      if (hoverI !== null && progress >= 1 && S.xs.length) {
-        const i = hoverI, e = abs.elems[S.idx[i]];
-        hover.setAttribute("d", `M${sx(S.xs[i]).toFixed(1)},${M.t}V${H - M.b}`);
-        readout.textContent =
-          `x ${S.xs[i].toFixed(2)} ∈ [${fmt(e.lo)}, ${fmt(e.hi)}]   L ${fmt(S.L[i])}  p ${fmt(S.p[i])}  U ${fmt(S.U[i])}\n` +
-          `L = ${boundStr(e.L)}   U = ${boundStr(e.U)}`;
-      } else {
-        hover.setAttribute("d", "");
-        readout.textContent = abs.atom ? `P(x = 0) ∈ [${abs.atom[0].toFixed(4)}, ${abs.atom[1].toFixed(4)}]   exact ${S.atom.toFixed(4)}` : "";
-      }
-    }
-
-    svg.addEventListener("pointermove", ev => {
-      if (!S || !S.xs.length) return;
-      const x = ix(ev.clientX - svg.getBoundingClientRect().left);
-      let lo = 0, hi = S.xs.length - 1;
-      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (S.xs[mid] < x) lo = mid; else hi = mid; }
-      hoverI = Math.abs(S.xs[lo] - x) < Math.abs(S.xs[hi] - x) ? lo : hi;
-      draw();
-    });
-    svg.addEventListener("pointerleave", () => { hoverI = null; draw(); });
-
-    new ResizeObserver(() => {
-      W = host.clientWidth; H = host.clientHeight;
-      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      draw();
-    }).observe(host);
-
-    return {
-      set(a, samples) { abs = a; S = samples; hoverI = null; draw(); },
-      setProgress(t) { progress = t; draw(); },
-    };
-  }
-
   // ---------- controls ----------
-  const chartIn = Chart($("chart-in")), chartOut = Chart($("chart-out"));
+  const chartIn = Chart($("chart-in"), { readout: $("readout-in") }), chartOut = Chart($("chart-out"), { readout: $("readout-out") });
 
   function rangeRow(spec, value, onInput) {
     const [key, label, min, max, , step] = spec;
@@ -952,7 +950,7 @@ const ease = t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
 
   function renderCode() {
     const lines = [`x ~ ${Expo.FAMILIES[state.fam].code(state.P)}`, ...state.prog.map(s => STMTS[s.type].code(s.p)), `<span class="kw">return</span> x`];
-    $("code").innerHTML = lines.map((l, i) => `<div class="ln" data-n="${i + 1}">${l}</div>`).join("");
+    $("code").innerHTML = lines.map((l, i) => `<div class="ln" data-n="${i + 1}"><span>${l}</span></div>`).join("");
   }
 
   function show(chart, statsEl, [abs, con]) {
