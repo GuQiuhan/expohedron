@@ -104,9 +104,7 @@
 
   /* ---------- playground ---------- */
   section { padding: 110px 32px; }
-  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-top: 1px solid var(--rule); padding-top: 18px; margin-bottom: 14px; }
-  .section-head h2 { font: 400 clamp(32px, 4.4vw, 56px)/1 var(--serif); }
-  .section-head .replay { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .section-title { font: 400 clamp(40px, 5.6vw, 76px)/1 var(--serif); margin-bottom: 28px; }
   .lede { color: var(--muted); max-width: 70ch; margin-bottom: 40px; }
   .lede code { font: 13px var(--mono); color: var(--ink); }
 
@@ -189,7 +187,8 @@
   .msg { min-height: 1.4em; margin-top: 10px; font-size: 12px; color: var(--bad); }
 
   .sub-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-top: 1px solid var(--rule); padding-top: 18px; margin: 96px 0 14px; }
-  .sub-head h2 { font: 400 clamp(28px, 3.4vw, 44px)/1 var(--serif); }
+  .sub-head h3 { font: 400 clamp(28px, 3.4vw, 44px)/1 var(--serif); }
+  .sub-head.first { margin-top: 0; }
   .sub-head .replay { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
   .bnn-diagram { margin: 8px auto 0; max-width: 900px; text-align: center; }
   .bnn-diagram svg { width: 100%; height: auto; display: block; }
@@ -301,11 +300,12 @@
 </header>
 
 <section id="playground">
-  <div class="section-head">
-    <h2>Playground</h2>
+  <h2 class="section-title">Playground</h2>
+  <div class="sub-head first">
+    <h3>Bayesian Inference</h3>
     <button class="replay" id="replay">Replay ↻</button>
   </div>
-  <p class="lede">Pick a prior, choose how many pieces the abstraction uses, and run a small probabilistic program on it. The page computes Expohedron's abstraction function and abstract transformers in your browser, and checks the result against the exact density.</p>
+  <p class="lede">Pick a prior, choose how many pieces the abstraction uses, customize a small probabilistic program and run it. The page computes Expohedron's abstraction function and abstract transformers in your browser, and checks the result against the exact density.</p>
 
   <div class="lab">
     <div class="card">
@@ -346,7 +346,7 @@
   </div>
 
   <div class="sub-head" id="bnn">
-    <h2>Bayesian neural network</h2>
+    <h3>Bayesian Neural Network</h3>
     <button class="replay" id="bnn-replay">Replay ↻</button>
   </div>
 
