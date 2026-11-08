@@ -74,7 +74,7 @@
   }
   .motto::before, .motto::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .7; }
   .hero h1 { font: 400 clamp(56px, 10vw, 148px)/.95 var(--serif); letter-spacing: -.02em; margin: 14px 0 12px; }
-  .tagline { font: italic 400 clamp(20px, 2.2vw, 28px)/1.25 var(--serif); max-width: 34ch; margin: 0 auto; }
+  .tagline { font: 400 clamp(20px, 2.2vw, 28px)/1.25 var(--serif); max-width: 34ch; margin: 0 auto; text-wrap: balance; }
   .authors { margin-top: 22px; font-size: 15px; }
   .authors a { border-bottom: 1px solid var(--rule); }
   .authors sup { font-size: 10px; color: var(--muted); }
@@ -214,6 +214,8 @@
   .notes h4 { font: 400 22px/1.15 var(--serif); margin: 6px 0 8px; }
   .notes p { color: var(--muted); font-size: 14px; }
   .notes code { font: 12.5px var(--mono); color: var(--ink); }
+  /* From the playground down, headings and the three notes are set in Times New Roman. */
+  .section-title, .sub-head h3, .card h3, .notes, .notes h4 { font-family: "Times New Roman", Times, "Liberation Serif", serif; }
 
   footer { padding: 28px 32px 40px; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--rule); }
 
