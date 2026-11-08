@@ -87,18 +87,23 @@
   .sub-head { scroll-margin-top: 80px; }
 
   /* ---------- semantics interpreter ---------- */
-  /* Concrete domain: a misty blue-grey band (from the paper's lower-bound blue), with lighter cards. */
+  /* Concrete domain, in the hero's dark palette: a black intro band, then the
+     playground's card layout on a charcoal ground. */
   .concrete {
-    --bg: #fafbfc; --panel: #f2f4f7; --rule: rgba(30, 40, 60, .14);
-    background: #dfe4ea; padding-top: 120px; padding-bottom: 120px;
+    --bg: #0b0b0a; --panel: #1f1d19; --ink: #f3e7b4;
+    --muted: rgba(243, 231, 180, .62); --rule: rgba(243, 231, 180, .2);
+    --accent: #e2734a; --good: #8fc98a; --bad: #ec8a76;
+    background: #151412; color: var(--ink); padding: 0;
   }
-  .concrete .card { border: 1px solid var(--rule); }
-  .interp-cta { padding: 0 16px 72px; text-align: center; }
+  .concrete select { color-scheme: dark; }
+  .interp-cta { background: #0b0b0a; padding: 120px 32px 110px; text-align: center; }
+  .concrete-body { padding: 96px 32px 120px; }
+  @media (max-width: 760px) { .interp-cta { padding: 80px 16px; } .concrete-body { padding: 72px 16px 80px; } }
   .cta-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
   .cta-eyebrow::before, .cta-eyebrow::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .6; }
   .interp-cta p { margin-top: 18px; font: 400 clamp(26px, 3.2vw, 40px)/1.25 "Times New Roman", Times, "Liberation Serif", serif; text-wrap: balance; }
   .interp-cta em { color: var(--accent); }
-  .interp-cta + .sub-head { margin-top: 0; }
+  .concrete-body > .sub-head { margin-top: 0; }
   .interp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .interp-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
   .editor-wrap { display: flex; background: var(--bg); border: 1px solid var(--rule); min-height: 360px; }
@@ -513,6 +518,7 @@
     <span class="cta-eyebrow">Concrete Domain</span>
     <p>Curious what lies beneath the abstraction?<br><em>Step into the concrete domain!</em></p>
   </div>
+  <div class="concrete-body">
   <div class="sub-head" id="interp">
     <h3>Semantics Interpreter</h3>
   </div>
@@ -538,6 +544,7 @@
       <div class="out-block"><span class="step">Snapshots (prior probstate of each observe)</span><div id="pp-snaps"></div></div>
     </div>
   </div>
+</div>
 </section>
 
 <footer>
