@@ -1089,7 +1089,7 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
       svgEl("text", { class: "f-text", x: L - 6, y: +y + sz * 0.35, "text-anchor": "end" }, frame).textContent = t.toFixed(dec);
     }
     svgEl("path", { class: "f-spine", d: `M${L},${T}V${B}H${R}` }, frame);
-    svgEl("text", { class: "f-text", x: L + 0.05 * (R - L), y: T - sz * 0.6, "text-anchor": "middle" }, frame).textContent = "density";
+    svgEl("text", { class: "f-text", x: L, y: T - sz * 0.6, "text-anchor": "middle" }, frame).textContent = "density";
     svgEl("text", { class: "f-text", x: R, y: B + sz * 2 + 8, "text-anchor": "end" }, frame).textContent = xlabel;
     // Label the support ends; when the window is narrower (draw_affine_BNN), label the window ends instead.
     for (let v of finiteRange(abs.elems)) {
