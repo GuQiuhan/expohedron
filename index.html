@@ -196,6 +196,7 @@
   .bnn-diagram .nd.shown { fill: #e6dccb; }
   .bnn-diagram .nd.in { stroke: #7a3e9d; } .bnn-diagram .nd.out { stroke: #c0392b; }
   .bnn-diagram .ed { stroke: var(--ink); stroke-width: 1; fill: none; }
+  .bnn-diagram .flow { stroke: #c05020; stroke-width: 2.6; stroke-linecap: round; fill: none; }
   .bnn-diagram text { font-family: "Times New Roman", var(--serif); fill: var(--ink); }
   .bnn-diagram .lb { font-size: 13px; font-style: italic; }
   .bnn-diagram .nl { font-size: 16px; font-style: italic; text-anchor: middle; dominant-baseline: central; }
@@ -1389,8 +1390,9 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
       txt.innerHTML = label;
       if (label === "ReLU") txt.style.fontStyle = "normal";
     }
+    const circles = {};
     for (const [name, [x, y, kind]] of Object.entries(nodes)) {
-      svgEl("circle", { class: `nd${kind ? " " + kind : ""}${shown.has(name) ? " shown" : ""}`, cx: X(x), cy: Y(y), r: R }, svg);
+      circles[name] = svgEl("circle", { class: `nd${kind ? " " + kind : ""}${shown.has(name) ? " shown" : ""}`, cx: X(x), cy: Y(y), r: R }, svg);
       const t = svgEl("text", { class: `nl${kind ? " " + kind : ""}`, x: X(x), y: Y(y) }, svg);
       t.innerHTML = name === "y" ? "y" : sub(name[0], name.slice(1));
     }
@@ -1400,6 +1402,31 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
     }
     for (const [x, label] of [[0, "Input Layer"], [6, "Hidden Layers"], [12.5, "Output Layer"]])
       svgEl("text", { class: "tt", x: X(x), y: Y(3.2) }, svg).textContent = label;
+
+    // Data flow: a pulse runs along each edge, layer by layer from the inputs to y,
+    // and each neuron's outline lights up as the pulse reaches it.
+    if (reducedMotion || !svg.animate) return;
+    const layer = { z1: 0, z2: 0, x1: 1, x2: 1, x3: 2, x4: 2, x5: 3, x6: 3, x7: 4, x8: 4, y: 5 };
+    const CYCLE = 4200, STEP = 0.15, PULSE = 12;
+    for (const [a, b] of edges) {
+      const [ax, ay] = nodes[a], [bx, by] = nodes[b];
+      const x0 = X(ax), y0 = Y(ay), x1 = X(bx), y1 = Y(by), len = Math.hypot(x1 - x0, y1 - y0);
+      const ux = (x1 - x0) / len, uy = (y1 - y0) / len, run = len - 2 * R - 1;
+      const path = svgEl("path", { class: "flow", d: `M${x0 + ux * R},${y0 + uy * R}L${x1 - ux * (R + 1)},${y1 - uy * (R + 1)}`, "stroke-dasharray": `${PULSE} ${run + PULSE}` }, svg);
+      const s0 = layer[a] * STEP, s1 = s0 + STEP;
+      path.animate([
+        { offset: 0, strokeDashoffset: PULSE }, { offset: s0, strokeDashoffset: PULSE },
+        { offset: s1, strokeDashoffset: -run }, { offset: 1, strokeDashoffset: -run },
+      ], { duration: CYCLE, iterations: Infinity });
+    }
+    for (const [name, c] of Object.entries(circles)) {
+      const t = layer[name] * STEP, base = getComputedStyle(c).stroke;
+      c.animate([
+        { offset: 0, stroke: base, strokeWidth: 1.2 }, { offset: t, stroke: base, strokeWidth: 1.2 },
+        { offset: Math.min(t + 0.03, 1), stroke: "#c05020", strokeWidth: 2.6 },
+        { offset: Math.min(t + 0.12, 1), stroke: base, strokeWidth: 1.2 }, { offset: 1, stroke: base, strokeWidth: 1.2 },
+      ], { duration: CYCLE, iterations: Infinity });
+    }
   })();
 
   // The paper's running example (test_toy_BNN_tensor): weights into x1, x2 and into x5; every std is 1.
