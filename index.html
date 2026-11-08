@@ -7,7 +7,7 @@
 <meta name="description" content="Expohedron: an abstract domain for probabilistic programs, with an interactive playground running its abstraction function and abstract transformers in the browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f9f7f2;
@@ -87,22 +87,23 @@
   .sub-head { scroll-margin-top: 80px; }
 
   /* ---------- semantics interpreter ---------- */
-  /* Concrete domain, in the hero's dark palette: a black intro band, then the
-     playground's card layout on a charcoal ground. */
+  /* Concrete domain: a black intro band in the hero's palette, then the playground's
+     card layout on cocoa, the deep shade of the page's cream. */
   .concrete {
-    --bg: #0b0b0a; --panel: #1f1d19; --ink: #f3e7b4;
-    --muted: rgba(243, 231, 180, .62); --rule: rgba(243, 231, 180, .2);
-    --accent: #e2734a; --good: #8fc98a; --bad: #ec8a76;
-    background: #151412; color: var(--ink); padding: 0;
+    --bg: #3b332b; --panel: #5a4f44; --ink: #f3ece0;
+    --muted: rgba(243, 236, 224, .66); --rule: rgba(243, 236, 224, .18);
+    --accent: #e8a07a; --good: #a8d5a0; --bad: #f19a86;
+    background: #4a4036; color: var(--ink); padding: 0;
   }
   .concrete select { color-scheme: dark; }
-  .interp-cta { background: #0b0b0a; padding: 120px 32px 110px; text-align: center; }
+  .interp-cta { --ink: #f3e7b4; --muted: rgba(243, 231, 180, .62); background: #0b0b0a; color: var(--ink); padding: 64px 32px 60px; text-align: center; }
   .concrete-body { padding: 96px 32px 120px; }
-  @media (max-width: 760px) { .interp-cta { padding: 80px 16px; } .concrete-body { padding: 72px 16px 80px; } }
+  @media (max-width: 760px) { .interp-cta { padding: 48px 16px; } .concrete-body { padding: 72px 16px 80px; } }
   .cta-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
   .cta-eyebrow::before, .cta-eyebrow::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .6; }
   .interp-cta p { margin-top: 18px; font: 400 clamp(26px, 3.2vw, 40px)/1.25 "Times New Roman", Times, "Liberation Serif", serif; text-wrap: balance; }
-  .interp-cta em { color: var(--accent); }
+  .interp-cta strong { display: inline-block; margin-bottom: 6px; font: 700 clamp(22px, 2.6vw, 34px)/1.2 var(--sans); letter-spacing: -.015em; }
+  .interp-cta em { color: #e2734a; }
   .concrete-body > .sub-head { margin-top: 0; }
   .interp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .interp-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
@@ -516,7 +517,7 @@
 <section class="concrete" id="concrete">
   <div class="interp-cta">
     <span class="cta-eyebrow">Concrete Domain</span>
-    <p>Curious what lies beneath the abstraction?<br><em>Step into the concrete domain!</em></p>
+    <p><strong>Curious what lies beneath the abstraction?</strong><br><em>Explore the concrete domain!</em></p>
   </div>
   <div class="concrete-body">
   <div class="sub-head" id="interp">
