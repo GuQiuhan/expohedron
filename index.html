@@ -1049,7 +1049,8 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
   const frame = svgEl("g", { "font-size": size }, svg);
   const legend = svgEl("g", { "font-size": size }, svg);
   const M = { l: size * 4.2, r: 10, t: size * 2, b: size * 2 + 14 };
-  let W = 400, H = 300, S = null, abs = null, progress = 1, hoverI = null, ix = null;
+  // pointerPx: the pointer's x inside the chart (null when it is outside); hoverI is derived from it on every draw
+  let W = 400, H = 300, S = null, abs = null, progress = 1, hoverI = null, ix = null, pointerPx = null;
 
   function draw() {
     if (!S) return;
@@ -1068,6 +1069,13 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
     const sx = x => L + (x - S.w0) / (S.w1 - S.w0) * (R - L);
     const sy = y => B - (Math.min(y, 2 * y1) - y0) / (y1 - y0) * (B - T);
     ix = px => S.w0 + (px - L) / (R - L) * (S.w1 - S.w0);
+    hoverI = null;
+    if (pointerPx !== null && S.xs.length) {
+      const x = ix(pointerPx);
+      let lo = 0, hi = S.xs.length - 1;
+      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (S.xs[mid] < x) lo = mid; else hi = mid; }
+      hoverI = Math.abs(S.xs[lo] - x) < Math.abs(S.xs[hi] - x) ? lo : hi;
+    }
     const f1 = v => v.toFixed(1);
 
     grid.replaceChildren(); frame.replaceChildren(); legend.replaceChildren(); atomG.replaceChildren();
@@ -1151,15 +1159,10 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
   }
 
   if (readout) {
-    svg.addEventListener("pointermove", ev => {
-      if (!S || !S.xs.length || !ix) return;
-      const x = ix(ev.clientX - svg.getBoundingClientRect().left);
-      let lo = 0, hi = S.xs.length - 1;
-      while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (S.xs[mid] < x) lo = mid; else hi = mid; }
-      hoverI = Math.abs(S.xs[lo] - x) < Math.abs(S.xs[hi] - x) ? lo : hi;
-      draw();
-    });
-    svg.addEventListener("pointerleave", () => { hoverI = null; draw(); });
+    // Show the readout as soon as the pointer is over the chart (entering, moving, or tapping on touch screens).
+    const track = ev => { pointerPx = ev.clientX - svg.getBoundingClientRect().left; draw(); };
+    for (const type of ["pointerenter", "pointermove", "pointerdown"]) svg.addEventListener(type, track);
+    svg.addEventListener("pointerleave", ev => { if (ev.pointerType === "mouse") { pointerPx = null; draw(); } });
   }
 
   new ResizeObserver(() => {
@@ -1170,7 +1173,7 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
 
   return {
     svg,
-    set(a, samples) { abs = a; S = samples; hoverI = null; draw(); },
+    set(a, samples) { abs = a; S = samples; draw(); },
     setProgress(t) { progress = t; draw(); },
   };
 }
