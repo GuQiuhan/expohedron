@@ -95,7 +95,6 @@
     --accent: #e9a77f; --good: #a8d5a0; --bad: #f4a08c;
     background: #3a2820; color: var(--ink); padding: 0;
   }
-  .concrete select { color-scheme: dark; }
   /* Run: a filled pill in the motto's orange; while running it turns into an outlined Stop with a pulse. */
   .run-btn {
     display: inline-flex; align-items: center; gap: 8px; flex: none;
@@ -114,7 +113,14 @@
   @keyframes run-pulse { 50% { opacity: .25; transform: scale(.7); } }
   @media (prefers-reduced-motion: reduce) { .run-btn, .run-btn .pulse { transition: none; animation: none; } }
   /* the code box: cream paper with dark code */
-  .concrete .editor-wrap { --bg: #f6efe3; --ink: #2a1d16; --muted: rgba(42, 29, 22, .55); --rule: rgba(42, 29, 22, .2); --bad: #b03a2a; color: var(--ink); }
+  .concrete .editor-wrap, .concrete .out-block .tbl-wrap {
+    --bg: #f6efe3; --ink: #2a1d16; --muted: rgba(42, 29, 22, .55); --rule: rgba(42, 29, 22, .16);
+    --good: #3f6b3a; --bad: #b03a2a; color: var(--ink);
+  }
+  /* cream tables on the output side too, so the code box is not the only light block */
+  .concrete select { color-scheme: dark; }
+  .concrete .out-block .tbl-wrap { background: var(--bg); padding: 4px 12px 8px; }
+  .concrete .pp-table tr:last-child td { border-bottom: 0; }
   .interp-cta { --ink: #f3e7b4; --muted: rgba(243, 231, 180, .62); background: #0b0b0a; color: var(--ink); padding: 64px 32px 60px; text-align: center; }
   .concrete-body { padding: 96px 32px 120px; }
   @media (max-width: 760px) { .interp-cta { padding: 48px 16px; } .concrete-body { padding: 72px 16px 80px; } }
