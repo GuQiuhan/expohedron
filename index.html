@@ -87,6 +87,12 @@
   .sub-head { scroll-margin-top: 80px; }
 
   /* ---------- semantics interpreter ---------- */
+  .interp-cta { margin-top: 120px; padding: 0 16px 64px; text-align: center; }
+  .cta-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
+  .cta-eyebrow::before, .cta-eyebrow::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .6; }
+  .interp-cta p { margin-top: 18px; font: 400 clamp(26px, 3.2vw, 40px)/1.25 "Times New Roman", Times, "Liberation Serif", serif; text-wrap: balance; }
+  .interp-cta em { color: var(--accent); }
+  .interp-cta + .sub-head { margin-top: 0; }
   .interp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
   .interp-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
   .editor-wrap { display: flex; background: var(--bg); border: 1px solid var(--rule); min-height: 360px; }
@@ -95,8 +101,6 @@
   .editor { flex: 1; min-width: 0; border: 0; outline: 0; resize: vertical; background: transparent; color: var(--ink);
     font: 12.5px/1.7 var(--mono); padding: 12px 12px 12px 4px; min-height: 360px; white-space: pre; overflow: auto; tab-size: 2; }
   .editor-wrap:focus-within { border-color: var(--ink); }
-  .syntax { font: 11.5px/1.7 var(--mono); color: var(--muted); margin-top: 10px; }
-  .syntax b { font-weight: 400; color: var(--ink); }
   .run-status { font-size: 13px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--rule); margin-bottom: 14px; overflow-wrap: anywhere; }
   .run-status.ok { border-color: var(--good); } .run-status.err { border-color: var(--bad); }
   .run-status b { font-weight: 600; } .run-status.ok b { color: var(--good); } .run-status.err b { color: var(--bad); }
@@ -496,10 +500,14 @@
     </div>
   </div>
 
+  <div class="interp-cta">
+    <span class="cta-eyebrow">Concrete Domain</span>
+    <p>Curious what lies beneath the abstraction?<br><em>Step into the concrete domain!</em></p>
+  </div>
   <div class="sub-head" id="interp">
     <h3>Semantics Interpreter</h3>
   </div>
-  <p class="lede">An interpreter for the kernel-based concrete semantics. Running a program computes its final probabilistic state <code>σp</code>: every variable is mapped to a Markov kernel, kept symbolically as Fig. 2 builds it, together with its direct dependency set. <code>query prob(B)</code> and <code>query mean(E)</code> are answered numerically by composing the kernels in topological order with grid integration. This is a JavaScript port of ppad's K definition (<code>concrete_domain/project_ppl/ppl.k</code>) and runs in your browser.</p>
+  <p class="lede">An interpreter for the kernel-based marginal collecting semantics, defined in the <a href="https://kframework.org/" style="border-bottom: 1px solid currentColor">K Framework</a>.</p>
   <div class="interp">
     <div class="card">
       <div class="card-head"><span class="step">01 — Program</span><h3>Source</h3></div>
@@ -511,12 +519,6 @@
         <div class="editor-gutter" id="pp-gutter" aria-hidden="true">1</div>
         <textarea class="editor" id="pp-src" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Program source"></textarea>
       </div>
-      <p class="syntax">
-        <b>x := E</b> · <b>x ~ D(E₁, …, Eₖ)</b> · <b>if B then { P } else { P }</b> · <b>observe(B)</b> · <b>skip</b><br>
-        <b>query prob(B)</b> · <b>query mean(E)</b> · <b>grid N</b> &nbsp;(points per continuous variable, default 200)<br>
-        D: Normal(μ, σ²) · Uniform(a, b) · Laplace(μ, b) · Logistic(μ, s) · Exponential(rate) · Gamma(k, θ) · Pareto(xₘ, α) · Student-t(ν)<br>
-        Ctrl/⌘ + Enter runs the program.
-      </p>
     </div>
     <div class="card">
       <div class="card-head"><span class="step">02 — Final configuration</span><h3>Output</h3></div>
