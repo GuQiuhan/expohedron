@@ -86,6 +86,38 @@
   @media (prefers-reduced-motion: reduce) { .drawer, .drawer.open, .scrim { transition: none; } }
   .sub-head { scroll-margin-top: 80px; }
 
+  /* ---------- semantics interpreter ---------- */
+  .interp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+  .interp-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .editor-wrap { display: flex; background: var(--bg); border: 1px solid var(--rule); min-height: 360px; }
+  .editor-gutter { font: 12.5px/1.7 var(--mono); color: var(--muted); opacity: .7; text-align: right; padding: 12px 8px 12px 12px; user-select: none; overflow: hidden; white-space: pre; }
+  .editor-gutter .bad { color: var(--bad); opacity: 1; font-weight: 600; }
+  .editor { flex: 1; min-width: 0; border: 0; outline: 0; resize: vertical; background: transparent; color: var(--ink);
+    font: 12.5px/1.7 var(--mono); padding: 12px 12px 12px 4px; min-height: 360px; white-space: pre; overflow: auto; tab-size: 2; }
+  .editor-wrap:focus-within { border-color: var(--ink); }
+  .syntax { font: 11.5px/1.7 var(--mono); color: var(--muted); margin-top: 10px; }
+  .syntax b { font-weight: 400; color: var(--ink); }
+  .run-status { font-size: 13px; padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--rule); margin-bottom: 14px; overflow-wrap: anywhere; }
+  .run-status.ok { border-color: var(--good); } .run-status.err { border-color: var(--bad); }
+  .run-status b { font-weight: 600; } .run-status.ok b { color: var(--good); } .run-status.err b { color: var(--bad); }
+  .run-status code { font: 12px var(--mono); }
+  .out-block { margin-bottom: 16px; }
+  .out-block > .step { display: block; margin-bottom: 6px; }
+  .tbl-wrap { overflow-x: auto; }
+  .pp-table { width: 100%; border-collapse: collapse; font: 12px/1.5 var(--mono); }
+  .pp-table th { font: 400 10.5px var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--rule); }
+  .pp-table td { padding: 5px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .pp-table td.num { text-align: right; white-space: nowrap; }
+  .pp-table td.ln { color: var(--muted); width: 1%; white-space: nowrap; }
+  .pp-table td.v { width: 1%; white-space: nowrap; font-style: italic; }
+  .pp-empty { font-size: 12px; color: var(--muted); }
+  .order { font: 12.5px var(--mono); }
+  .snap { border-top: 1px solid var(--rule); padding: 8px 0; }
+  .snap summary { cursor: pointer; font-size: 13px; }
+  .snap summary code { font: 12px var(--mono); }
+  .snap .tbl-wrap { margin-top: 8px; }
+  @media (max-width: 1100px) { .interp { grid-template-columns: minmax(0, 1fr); } }
+
   .wordmark { font: 500 14px/1 var(--sans); letter-spacing: .38em; text-transform: uppercase; padding-left: .38em; }
 
   /* ---------- hero ---------- */
@@ -301,6 +333,9 @@
     <li><a href="#bnn">Bayesian Neural Network</a></li>
   </ul>
   <h4>Concrete Domain</h4>
+  <ul>
+    <li><a href="#interp">Semantics Interpreter</a></li>
+  </ul>
 </aside>
 
 <header class="hero" id="top">
@@ -458,6 +493,38 @@
       <span class="step">03</span>
       <h4>From Bayesian Neural Networks(BNNs) to general probabilistic programs. </h4>
       <p>Enables sound uncertainty quantification in BNNs, capturing entire output distributions and neuron-level uncertainty propagation. Further extended to general probabilistic programs with Bayesian inference and bounded loops.</p>
+    </div>
+  </div>
+
+  <div class="sub-head" id="interp">
+    <h3>Semantics Interpreter</h3>
+  </div>
+  <p class="lede">An interpreter for the kernel-based concrete semantics. Running a program computes its final probabilistic state <code>σp</code>: every variable is mapped to a Markov kernel, kept symbolically as Fig. 2 builds it, together with its direct dependency set. <code>query prob(B)</code> and <code>query mean(E)</code> are answered numerically by composing the kernels in topological order with grid integration. This is a JavaScript port of ppad's K definition (<code>concrete_domain/project_ppl/ppl.k</code>) and runs in your browser.</p>
+  <div class="interp">
+    <div class="card">
+      <div class="card-head"><span class="step">01 — Program</span><h3>Source</h3></div>
+      <div class="interp-bar">
+        <select id="pp-example" aria-label="Example program"></select>
+        <button class="chip primary" id="pp-run">Run ▸</button>
+      </div>
+      <div class="editor-wrap">
+        <div class="editor-gutter" id="pp-gutter" aria-hidden="true">1</div>
+        <textarea class="editor" id="pp-src" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Program source"></textarea>
+      </div>
+      <p class="syntax">
+        <b>x := E</b> · <b>x ~ D(E₁, …, Eₖ)</b> · <b>if B then { P } else { P }</b> · <b>observe(B)</b> · <b>skip</b><br>
+        <b>query prob(B)</b> · <b>query mean(E)</b> · <b>grid N</b> &nbsp;(points per continuous variable, default 200)<br>
+        D: Normal(μ, σ²) · Uniform(a, b) · Laplace(μ, b) · Logistic(μ, s) · Exponential(rate) · Gamma(k, θ) · Pareto(xₘ, α) · Student-t(ν)<br>
+        Ctrl/⌘ + Enter runs the program.
+      </p>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="step">02 — Final configuration</span><h3>Output</h3></div>
+      <div class="run-status" id="pp-status" role="status">—</div>
+      <div class="out-block"><span class="step">Results</span><div id="pp-results"></div></div>
+      <div class="out-block"><span class="step">Probstate <span style="text-transform:none">σp</span></span><div id="pp-pstate"></div></div>
+      <div class="out-block"><span class="step">Order (topological)</span><div class="order" id="pp-order"></div></div>
+      <div class="out-block"><span class="step">Snapshots (prior probstate of each observe)</span><div id="pp-snaps"></div></div>
     </div>
   </div>
 </section>
@@ -1582,6 +1649,625 @@ function Chart(host, { readout = null, cursor = false, size = 11, edges: showEdg
 
   update();
   new IntersectionObserver(([e], obs) => { if (e.isIntersecting) { replay(); obs.disconnect(); } }, { threshold: 0.2 }).observe($("bnn-x1"));
+})();
+</script>
+
+<script>
+// =====================================================================
+// Semantics interpreter: a port of ppad's concrete_domain/project_ppl/ppl.k
+// (parser, the symbolic semantics of Fig. 2, and the numeric queries).
+// =====================================================================
+// Port of ppad: concrete_domain/project_ppl/ppl.k
+// (K interpreter for the kernel-based concrete semantics, Fig. 1 / Fig. 2).
+function PPLFactory() {
+  "use strict";
+  class PPLError extends Error {
+    constructor(msg, detail, line, kind) { super(msg); this.detail = detail || ""; this.line = line || null; this.kind = kind || "error"; }
+  }
+  const DISTS = ["Normal", "Uniform", "Laplace", "Logistic", "Exponential", "Gamma", "Pareto", "Student-t"];
+  const KEYWORDS = new Set(["skip", "if", "then", "else", "while", "do", "observe", "query", "prob", "mean", "grid", "true", "false", "ReLU"].concat(DISTS));
+
+  // ------------------------------------------------------------ lexer
+  function lex(src) {
+    const toks = []; let i = 0, line = 1, col = 1;
+    const adv = n => { for (let k = 0; k < n; k++) { if (src[i] === "\n") { line++; col = 1; } else col++; i++; } };
+    while (i < src.length) {
+      const c = src[i];
+      if (/\s/.test(c)) { adv(1); continue; }
+      if (src.startsWith("//", i)) { while (i < src.length && src[i] !== "\n") adv(1); continue; }
+      if (src.startsWith("/*", i)) {
+        const j = src.indexOf("*/", i + 2);
+        if (j < 0) throw new PPLError("parse error", "unterminated comment", line, "parse");
+        adv(j + 2 - i); continue;
+      }
+      const at = { line, col };
+      let m;
+      if ((m = /^Student-t/.exec(src.slice(i, i + 9))) && !/[A-Za-z0-9_]/.test(src[i + 9] || "")) {
+        toks.push(Object.assign({ t: "kw", v: "Student-t" }, at)); adv(9); continue;
+      }
+      if ((m = /^[A-Za-z_][A-Za-z0-9_']*/.exec(src.slice(i, i + 200)))) {
+        const w = m[0];
+        toks.push(Object.assign({ t: KEYWORDS.has(w) ? "kw" : "id", v: w }, at)); adv(w.length); continue;
+      }
+      if ((m = /^(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?/.exec(src.slice(i, i + 60)))) {
+        const s = m[0], isInt = /^\d+$/.test(s);
+        toks.push(Object.assign({ t: "num", v: s, int: isInt }, at)); adv(s.length); continue;
+      }
+      const ops = [":=", "==", "!=", "<=", ">=", "&&", "||", "<", ">", "=", "~", "+", "-", "*", "/", "(", ")", "{", "}", ",", ";", "!"];
+      const op = ops.find(o => src.startsWith(o, i));
+      if (!op) throw new PPLError("parse error", `unexpected character '${c}'`, line, "parse");
+      toks.push(Object.assign({ t: "op", v: op }, at)); adv(op.length);
+    }
+    toks.push({ t: "eof", v: "end of program", line, col });
+    return toks;
+  }
+
+  // ------------------------------------------------------------ parser (grammar of PPL-SYNTAX)
+  function parse(src) {
+    const T = lex(src); let p = 0;
+    const peek = (k = 0) => T[p + k];
+    const is = (v, k = 0) => { const t = T[p + k]; return (t.t === "op" || t.t === "kw") && t.v === v; };
+    const fail = (msg, t = peek()) => { throw new PPLError("parse error", `${msg}, found '${t.v}'`, t.line, "parse"); };
+    const eat = v => { if (!is(v)) fail(`expected '${v}'`); return T[p++]; };
+
+    // Exp: atoms, "-" Exp, ReLU(Exp)  >  * /  >  + -
+    function atom() {
+      const t = peek();
+      if (t.t === "num") { p++; return { t: "num", s: t.v, int: t.int, v: Number(t.v) }; }
+      if (t.t === "id") { p++; return { t: "var", n: t.v }; }
+      if (is("ReLU")) { p++; eat("("); const e = exp(); eat(")"); return { t: "relu", e }; }
+      if (is("-")) { p++; return { t: "neg", e: atom() }; }
+      if (is("(")) { p++; const e = exp(); eat(")"); return e; }
+      fail("expected an expression");
+    }
+    function term() {
+      let l = atom();
+      while (is("*") || is("/")) { const op = T[p++].v; l = { t: "bin", op, l, r: atom() }; }
+      return l;
+    }
+    function exp() {
+      let l = term();
+      while (is("+") || is("-")) { const op = T[p++].v; l = { t: "bin", op, l, r: term() }; }
+      return l;
+    }
+    // BExp: true | false | E cmp E | (B)  >  !B  >  &&  >  ||
+    const CMP = ["==", "!=", "<=", ">=", "<", ">"];
+    function batom() {
+      if (is("true")) { p++; return { t: "true" }; }
+      if (is("false")) { p++; return { t: "false" }; }
+      if (is("!")) { p++; return { t: "not", b: batom() }; }
+      if (is("(")) {
+        // "(" may open a Boolean expression or an arithmetic one: try the Boolean reading first
+        const save = p;
+        try {
+          p++; const b = bexp(); eat(")");
+          if (!CMP.some(c => is(c)) && !["+", "-", "*", "/"].some(c => is(c))) return b;
+        } catch (e) { if (!(e instanceof PPLError)) throw e; }
+        p = save;
+      }
+      const l = exp();
+      const op = CMP.find(c => is(c));
+      if (!op) fail("expected a comparison");
+      p++;
+      return { t: "cmp", op, l, r: exp() };
+    }
+    function band() {
+      let l = batom();
+      while (is("&&")) { p++; l = { t: "and", l, r: batom() }; }
+      return l;
+    }
+    function bexp() {
+      let l = band();
+      while (is("||")) { p++; l = { t: "or", l, r: band() }; }
+      return l;
+    }
+    function block() {
+      eat("{");
+      if (is("}")) { p++; return []; }
+      const ss = stmts(); eat("}");
+      return ss;
+    }
+    function stmt() {
+      const t = peek(), line = t.line;
+      if (is("skip")) { p++; return { t: "skip", line }; }
+      if (is("if")) {
+        p++; const b = bexp(); eat("then"); const th = block(); eat("else"); const el = block();
+        return { t: "if", b, th, el, line };
+      }
+      if (is("while")) { p++; const b = bexp(); eat("do"); const body = block(); return { t: "while", b, body, line }; }
+      if (is("observe")) { p++; eat("("); const b = bexp(); eat(")"); return { t: "observe", b, line }; }
+      if (is("query")) {
+        p++;
+        if (is("prob")) { p++; eat("("); const b = bexp(); eat(")"); return { t: "qprob", b, line }; }
+        if (is("mean")) { p++; eat("("); const e = exp(); eat(")"); return { t: "qmean", e, line }; }
+        fail("expected 'prob' or 'mean'");
+      }
+      if (is("grid")) {
+        p++; const n = peek();
+        if (n.t !== "num" || !n.int) fail("expected an integer");
+        p++; return { t: "grid", n: parseInt(n.v, 10), line };
+      }
+      if (t.t === "id") {
+        p++;
+        if (is(":=") || is("=")) { p++; return { t: "assign", x: t.v, e: exp(), line }; }
+        if (is("~")) {
+          p++; const d = peek();
+          if (d.t !== "kw" || DISTS.indexOf(d.v) < 0) fail("expected a distribution (" + DISTS.join(", ") + ")");
+          p++; eat("(");
+          const args = [];
+          if (!is(")")) { args.push(exp()); while (is(",")) { p++; args.push(exp()); } }
+          eat(")");
+          return { t: "sample", x: t.v, d: d.v, args, line };
+        }
+        fail("expected ':=', '=' or '~'");
+      }
+      fail("expected a statement");
+    }
+    function stmts() {
+      const ss = [stmt()];
+      if (is(";")) p++;
+      while (!is("}") && peek().t !== "eof") { ss.push(stmt()); if (is(";")) p++; }
+      return ss;
+    }
+    const prog = stmts();
+    if (peek().t !== "eof") fail("unexpected input");
+    return prog;
+  }
+
+  // ------------------------------------------------------------ printing
+  const PREC = { "+": 1, "-": 1, "*": 2, "/": 2 };
+  function showE(e, ctx = 0) {
+    switch (e.t) {
+      case "num": return e.s;
+      case "var": return e.n;
+      case "relu": return `ReLU(${showE(e.e)})`;
+      case "neg": { const s = "-" + showE(e.e, 3); return s; }
+      case "bin": {
+        const pr = PREC[e.op];
+        const s = `${showE(e.l, pr)} ${e.op} ${showE(e.r, pr + 0.5)}`;
+        return pr < ctx ? `(${s})` : s;
+      }
+    }
+  }
+  function showB(b, ctx = 0) {
+    switch (b.t) {
+      case "true": case "false": return b.t;
+      case "cmp": return `${showE(b.l)} ${b.op} ${showE(b.r)}`;
+      case "not": return /^(true|false|not)$/.test(b.b.t) ? "!" + showB(b.b) : `!(${showB(b.b)})`;
+      case "and": { const s = `${showB(b.l, 2)} && ${showB(b.r, 2.5)}`; return ctx > 2 ? `(${s})` : s; }
+      case "or": { const s = `${showB(b.l, 1)} || ${showB(b.r, 1.5)}`; return ctx > 1 ? `(${s})` : s; }
+    }
+  }
+  function showBody(k) {
+    switch (k.t) {
+      case "delta": return `delta(${showE(k.e)})`;
+      case "sample": return `sample(${[k.d].concat(k.args.map(a => showE(a))).join(", ")})`;
+      case "branch": return `branch(${showB(k.b)}, ${showBody(k.k1)}, ${showBody(k.k2)})`;
+      case "undef": return "undef";
+      case "cond": return `cond(${k.n}, ${k.x})`;
+    }
+  }
+  const showSet = s => s.length ? "{" + s.join(", ") + "}" : "∅";
+  // structural identity of kernels (K's  merge(_, K, K) => K): Int 1 and Float 1.0 differ, as in K
+  function keyE(e) {
+    switch (e.t) {
+      case "num": return (e.int ? "i" : "f") + e.v;
+      case "var": return "v" + e.n;
+      case "relu": return "R(" + keyE(e.e) + ")";
+      case "neg": return "N(" + keyE(e.e) + ")";
+      case "bin": return "(" + keyE(e.l) + e.op + keyE(e.r) + ")";
+    }
+  }
+  function keyB(b) {
+    switch (b.t) {
+      case "true": case "false": return b.t;
+      case "cmp": return "(" + keyE(b.l) + b.op + keyE(b.r) + ")";
+      case "not": return "!" + keyB(b.b);
+      case "and": return "(" + keyB(b.l) + "&&" + keyB(b.r) + ")";
+      case "or": return "(" + keyB(b.l) + "||" + keyB(b.r) + ")";
+    }
+  }
+  function keyBody(k) {
+    switch (k.t) {
+      case "delta": return "d(" + keyE(k.e) + ")";
+      case "sample": return "s(" + k.d + ";" + k.args.map(keyE).join(",") + ")";
+      case "branch": return "b(" + keyB(k.b) + ";" + keyBody(k.k1) + ";" + keyBody(k.k2) + ")";
+      case "undef": return "u";
+      case "cond": return "c(" + k.n + "," + k.x + ")";
+    }
+  }
+  const keyK = K => K.dep.join(",") + "|" + keyBody(K.body);
+
+  // ------------------------------------------------------------ dependency sets (varsE, varsB)
+  const setOf = a => Array.from(new Set(a)).sort();
+  function varsE(e, acc = []) {
+    switch (e.t) {
+      case "var": acc.push(e.n); break;
+      case "relu": case "neg": varsE(e.e, acc); break;
+      case "bin": varsE(e.l, acc); varsE(e.r, acc); break;
+    }
+    return acc;
+  }
+  function varsB(b, acc = []) {
+    switch (b.t) {
+      case "cmp": varsE(b.l, acc); varsE(b.r, acc); break;
+      case "not": varsB(b.b, acc); break;
+      case "and": case "or": varsB(b.l, acc); varsB(b.r, acc); break;
+    }
+    return acc;
+  }
+  const ker = (dep, body) => ({ dep: setOf(dep), body });
+  const before = (x, O) => { const i = O.indexOf(x); return i < 0 ? O.slice() : O.slice(0, i); };
+  const subset = (a, b) => a.every(v => b.indexOf(v) >= 0);
+  const minus = (a, b) => a.filter(v => b.indexOf(v) < 0);
+
+  // ------------------------------------------------------------ numeric module (PPL-NUMERIC)
+  // exp and pow exactly as ppl.k computes them (range reduction + Taylor series)
+  function expF(A) {
+    if (A < -700) return 0;
+    const R = A / 1024;
+    let sum = 1, term = 1;
+    for (let k = 1; k <= 20; k++) { sum = sum + term * R / k; term = term * R / k; }
+    for (let k = 0; k < 10; k++) sum = sum * sum;
+    return sum;
+  }
+  function stuck(msg) { throw new PPLError("stuck", msg, null, "stuck"); }
+  function powF(X, P) { if (!(X > 0)) stuck(`powF(${X}, ${P}) is undefined`); return expF(P * Math.log(X)); }
+
+  function evalE(e, V) {
+    switch (e.t) {
+      case "num": return e.v;
+      case "var": return V[e.n];
+      case "relu": return Math.max(0, evalE(e.e, V));
+      case "neg": return -evalE(e.e, V);
+      case "bin": {
+        const a = evalE(e.l, V), b = evalE(e.r, V);
+        return e.op === "+" ? a + b : e.op === "-" ? a - b : e.op === "*" ? a * b : a / b;
+      }
+    }
+  }
+  function evalB(b, V) {
+    switch (b.t) {
+      case "true": return true;
+      case "false": return false;
+      case "cmp": {
+        const l = evalE(b.l, V), r = evalE(b.r, V);
+        switch (b.op) { case "==": return l === r; case "!=": return l !== r; case "<": return l < r; case "<=": return l <= r; case ">": return l > r; case ">=": return l >= r; }
+      }
+      case "not": return !evalB(b.b, V);
+      case "and": return evalB(b.l, V) && evalB(b.r, V);
+      case "or": return evalB(b.l, V) || evalB(b.r, V);
+    }
+  }
+
+  function valid(D, P) {
+    const n = P.length, [a, b] = P;
+    switch (D) {
+      case "Normal": return n === 2 && b > 0;
+      case "Uniform": return n === 2 && a < b;
+      case "Laplace": case "Logistic": return n === 2 && b > 0;
+      case "Exponential": return n === 1 && a > 0;
+      case "Gamma": case "Pareto": return n === 2 && a > 0 && b > 0;
+      case "Student-t": return n === 1 && a > 0;
+    }
+    return false;
+  }
+  function lo(D, [a, b]) {
+    switch (D) {
+      case "Normal": return a - 8 * Math.sqrt(b);
+      case "Uniform": return a;
+      case "Laplace": return a - 30 * b;
+      case "Logistic": return a - 35 * b;
+      case "Exponential": case "Gamma": return 0;
+      case "Student-t": return -50;
+    }
+  }
+  function hi(D, [a, b]) {
+    switch (D) {
+      case "Normal": return a + 8 * Math.sqrt(b);
+      case "Uniform": return b;
+      case "Laplace": return a + 30 * b;
+      case "Logistic": return a + 35 * b;
+      case "Exponential": return 30 / a;
+      case "Gamma": return b * (a + 10 * Math.sqrt(a) + 30);
+      case "Student-t": return 50;
+    }
+  }
+  function dens(D, [a, b], x) {
+    switch (D) {
+      case "Normal": return expF(-((x - a) * (x - a)) / (2 * b));
+      case "Uniform": return 1;
+      case "Laplace": return expF(-Math.abs(x - a) / b);
+      case "Logistic": { const t = expF(-(x - a) / b); return t / ((1 + t) * (1 + t)); }
+      case "Exponential": return expF(-a * x);
+      case "Gamma": return powF(x, a - 1) * expF(-x / b);
+      case "Student-t": return powF(1 + x * x / a, -(a + 1) / 2);
+    }
+  }
+  function gridOf(D, P, N) {
+    if (!valid(D, P)) stuck(`${D}(${P.map(v => +v.toPrecision(6)).join(", ")}) has invalid parameters`);
+    const pts = [];
+    if (D === "Pareto") {
+      const [M, A] = P, H = (Math.log(1000000) / A) / N;
+      for (let j = 0; j < N; j++) pts.push([M * expF((j + 0.5) * H), expF(-A * (j + 0.5) * H) * H]);
+      return pts;
+    }
+    const L = lo(D, P), H = (hi(D, P) - L) / N;
+    for (let j = 0; j < N; j++) { const t = L + (j + 0.5) * H; pts.push([t, dens(D, P, t) * H]); }
+    return pts;
+  }
+  // K folds sums from the right: w1 + (w2 + (... + 0.0))
+  function normalize(pts, what) {
+    let tot = 0;
+    for (let j = pts.length - 1; j >= 0; j--) tot = pts[j][1] + tot;
+    if (!(tot > 0)) stuck(what || "normalizing a zero measure");
+    const c = 1 / tot;
+    return pts.map(([t, w]) => [t, w * c]);
+  }
+
+  function makeNumeric(Sn, N, budget) {
+    let work = 0;
+    const tick = n => { work += n; if (work > budget) throw new PPLError("too much work", `the grid integration exceeded ${budget.toExponential(0)} steps; lower 'grid N'`, null, "limit"); };
+    function points(body, V, x) {
+      switch (body.t) {
+        case "delta": tick(1); return [[evalE(body.e, V), 1]];
+        case "sample": tick(N); return normalize(gridOf(body.d, body.args.map(a => evalE(a, V)), N));
+        case "branch": return points(evalB(body.b, V) ? body.k1 : body.k2, V, x);
+        case "undef": stuck(`'${x}' is undefined on the branch taken`);
+        case "cond": {
+          // equation (1): reweight the prior kernel's points by P(B | x<=i = v<=i)
+          const snap = Sn[body.n], X = body.x;
+          const prior = points(snap.S.get(X).body, V, X);
+          const rw = prior.map(([t, w]) => {
+            if (w === 0) return [t, 0];
+            const had = Object.prototype.hasOwnProperty.call(V, X), old = V[X];
+            V[X] = t;
+            const pb = expect(snap.S, snap.O, V, { b: snap.B });
+            if (had) V[X] = old; else delete V[X];
+            return [t, w * pb];
+          });
+          return normalize(rw, `P(${showB(snap.B)} | ${X} and earlier variables) = 0 at a reachable point`);
+        }
+      }
+    }
+    function anc(S, todo) {
+      const done = new Set(), stack = todo.slice();
+      while (stack.length) {
+        const x = stack.pop();
+        if (done.has(x)) continue;
+        done.add(x);
+        const K = S.get(x);
+        if (K) K.dep.forEach(d => { if (!done.has(d)) stack.push(d); });
+      }
+      return done;
+    }
+    // expect(S, O, V, F): integrate the variables F needs, in the order O
+    function expect(S, O, V, F) {
+      const need = anc(S, F.b ? varsB(F.b) : varsE(F.e));
+      const xs = O.filter(x => need.has(x) && !Object.prototype.hasOwnProperty.call(V, x));
+      const integ = i => {
+        if (i === xs.length) { tick(1); return F.b ? (evalB(F.b, V) ? 1 : 0) : evalE(F.e, V); }
+        const X = xs[i], pts = points(S.get(X).body, V, X);
+        let acc = 0;
+        for (let j = pts.length - 1; j >= 0; j--) {
+          const [t, w] = pts[j];
+          if (w === 0) continue;
+          V[X] = t;
+          acc = w * integ(i + 1) + acc;
+        }
+        delete V[X];
+        return acc;
+      };
+      return integ(0);
+    }
+    return { expect, work: () => work };
+  }
+
+  // ------------------------------------------------------------ execution (module PPL)
+  function run(src, opts) {
+    opts = opts || {};
+    const budget = opts.budget || 5e7;
+    const st = { S: new Map(), O: [], Sn: [], grid: 200, results: [], error: null };
+    let prog;
+    try { prog = parse(src); } catch (e) {
+      if (!(e instanceof PPLError)) throw e;
+      st.error = { msg: e.message, detail: e.detail, line: e.line, kind: e.kind };
+      return finish(st);
+    }
+    const err = (msg, detail, line) => { throw new PPLError(msg, detail, line, "error"); };
+    function bind(x, K, line) {
+      const keys = Array.from(st.S.keys());
+      if (!subset(K.dep, keys)) err("undefined variable(s)", showSet(minus(K.dep, keys)), line);
+      if (K.dep.indexOf(x) >= 0) err("assumption violated: self-reference", x, line);
+      if (!st.S.has(x)) { st.S = new Map(st.S).set(x, K); st.O = st.O.concat([x]); return; }
+      const bef = before(x, st.O);
+      if (!subset(K.dep, bef)) err("assumption violated: depends on variable(s) introduced after it", `${x} depends on ${showSet(minus(K.dep, bef))}`, line);
+      st.S = new Map(st.S).set(x, K);
+    }
+    function exec(ss) { for (const s of ss) step(s); }
+    function step(s) {
+      const keys = () => Array.from(st.S.keys());
+      switch (s.t) {
+        case "skip": return;
+        case "assign": return bind(s.x, ker(varsE(s.e), { t: "delta", e: s.e }), s.line);
+        case "sample": return bind(s.x, ker([].concat(...s.args.map(a => varsE(a))), { t: "sample", d: s.d, args: s.args }), s.line);
+        case "if": {
+          const vb = setOf(varsB(s.b));
+          if (!subset(vb, keys())) err("undefined variable(s)", showSet(minus(vb, keys())), s.line);
+          const S0 = st.S, O0 = st.O;
+          exec(s.th);
+          const S1 = st.S, O1 = st.O;
+          st.S = S0; st.O = O0;
+          exec(s.el);
+          const S2 = st.S, O2 = st.O;
+          const all = setOf(Array.from(S1.keys()).concat(Array.from(S2.keys())));
+          const M = new Map();
+          for (const x of all) {
+            const K1 = S1.get(x) || ker([], { t: "undef" }), K2 = S2.get(x) || ker([], { t: "undef" });
+            M.set(x, keyK(K1) === keyK(K2) ? K1 : ker(vb.concat(K1.dep, K2.dep), { t: "branch", b: s.b, k1: K1.body, k2: K2.body }));
+          }
+          // new variables: topological order of the merged kernels
+          const cand = [];
+          for (const x of O1.concat(O2)) if (O0.indexOf(x) < 0 && cand.indexOf(x) < 0) cand.push(x);
+          const placed = O0.slice(), added = [];
+          while (cand.length) {
+            const i = cand.findIndex(x => subset(M.get(x).dep, placed));
+            if (i < 0) { st.S = M; st.O = O0.concat(added); throw new PPLError("stuck", `the merged kernels of ${showSet(cand.slice().sort())} depend on each other (no topological order)`, s.line, "stuck"); }
+            const x = cand.splice(i, 1)[0]; placed.push(x); added.push(x);
+          }
+          st.S = M; st.O = O0.concat(added);
+          for (const x of st.O) {
+            if (!subset(st.S.get(x).dep, before(x, st.O)))
+              err("assumption violated: after the if, a kernel depends on a variable introduced after it", `${x} depends on ${showSet(minus(st.S.get(x).dep, before(x, st.O)))}`, s.line);
+          }
+          return;
+        }
+        case "while": return err("while is not supported yet (its semantics is not defined in the paper)", "", s.line);
+        case "observe": {
+          const vb = setOf(varsB(s.b));
+          if (!subset(vb, keys())) err("undefined variable(s)", showSet(minus(vb, keys())), s.line);
+          const n = st.Sn.length;
+          st.Sn = st.Sn.concat([{ S: st.S, O: st.O, B: s.b, line: s.line }]);
+          const M = new Map();
+          for (const x of st.O) M.set(x, ker(before(x, st.O), { t: "cond", n, x }));
+          st.S = M;
+          return;
+        }
+        case "grid": if (s.n > 0) st.grid = s.n; else err("stuck", "grid N needs N > 0", s.line); return;
+        case "qprob": case "qmean": {
+          const v = setOf(s.t === "qprob" ? varsB(s.b) : varsE(s.e));
+          if (!subset(v, keys())) err("undefined variable(s)", showSet(minus(v, keys())), s.line);
+          const label = s.t === "qprob" ? `Pr(${showB(s.b)})` : `Ex(${showE(s.e)})`;
+          const num = makeNumeric(st.Sn, st.grid, budget);
+          let value;
+          try { value = num.expect(st.S, st.O, {}, s.t === "qprob" ? { b: s.b } : { e: s.e }); }
+          catch (e) { if (e instanceof PPLError) { e.line = s.line; e.detail = `${label}: ${e.detail}`; } throw e; }
+          st.results.push({ label, value, line: s.line, grid: st.grid });
+          return;
+        }
+      }
+    }
+    try { exec(prog); } catch (e) {
+      if (!(e instanceof PPLError)) throw e;
+      st.error = { msg: e.message, detail: e.detail, line: e.line, kind: e.kind };
+    }
+    return finish(st);
+  }
+
+  const showState = (S, O) => O.filter(x => S.has(x)).map(x => ({ x, dep: S.get(x).dep, depText: showSet(S.get(x).dep), body: showBody(S.get(x).body) }));
+  function finish(st) {
+    return {
+      error: st.error,
+      pstate: showState(st.S, st.O),
+      order: st.O.slice(),
+      snapshots: st.Sn.map((s, n) => ({ n, B: showB(s.B), line: s.line, pstate: showState(s.S, s.O), order: s.O.slice() })),
+      grid: st.grid,
+      results: st.results
+    };
+  }
+  return { run, parse };
+}
+
+(() => {
+  const EXAMPLES = [{"name": "running-example", "src": "// The running example of the paper (Fig. 3), plus numeric queries.\nx ~ Normal(0, 1)\ny ~ Normal(x, 1)\nz = ReLU(y)\nquery prob(z > 1)        // P(B) = 1 - Phi(1/sqrt(2)) ~ 0.2398\nquery mean(y)            // 0\nobserve (z > 1)\nquery prob(z > 1)        // 1 after conditioning on B\nquery mean(x)            // E[x | z > 1] = 0.9147\n"}, {"name": "if-merge", "src": "// if-then-else: the two resulting probstates are merged by the guard.\n// y is defined differently on the two branches, so\n// K_y = branch(x < 0.5, delta(0), sample(Normal, x, 1)), dep = {x}.\n// w is assigned the same kernel on both branches, so the guard is not a\n// direct dependency of w.\nx ~ Uniform(0, 1)\nif x < 0.5 then { y := 0; w := 7 } else { y ~ Normal(x, 1); w := 7 }\nquery mean(y)            // integral of x over (0.5, 1) = 0.375\nquery mean(w)            // 7\nquery prob(y == 0)       // 0.5\n"}, {"name": "two-observes", "src": "// Two observations: the second posterior refers to the first one.\ngrid 100\nx ~ Uniform(0, 1)\ny ~ Uniform(0, 1)\nobserve (x + y > 1)\nquery mean(x)            // 2/3\nobserve (x > y)\nquery mean(x)            // E[x | x + y > 1, x > y] = 5/6 = 0.8333\nquery prob(x > 0.5)      // 1\n"}, {"name": "property3-a", "src": "// Property (3), first probstate: dependency graph x -> y.\nx ~ Normal(0, 1)\ny ~ Normal(x, 1)\nquery mean(x * y)        // Cov(x, y) = 1\nquery mean(y * y)        // Var(y) = 2\nquery prob(x + y > 1)\n"}, {"name": "property3-b", "src": "// Property (3), second probstate: dependency graph y -> x.\n// A different probstate (different kernels and dependencies) inducing the\n// SAME joint measure as property3-a.ppl, so all queries agree.\ny ~ Normal(0, 2)\nx ~ Normal(y / 2, 0.5)\nquery mean(x * y)        // Cov(x, y) = 1\nquery mean(y * y)        // Var(y) = 2\nquery prob(x + y > 1)\n"}, {"name": "reassign-by-name", "src": "// Kernels refer to variables by NAME (Fig. 2: [[x := E]]p = sigma_p[x |-> [[E]]p]).\n// y's kernel is delta(x + 1) with dep {x}.  Reassigning x afterwards is\n// allowed by the assumption (the new kernel of x has no dependencies), but\n// it also changes the joint measure seen through y: E[y] becomes 3 + 1 = 4,\n// whereas in an ordinary (sampling) execution y would keep mean 0 + 1 = 1.\nx ~ Normal(0, 1)\ny := x + 1\nquery mean(y)            // 1\nx := 3\nquery mean(y)            // 4 under the kernel-based semantics\n"}, {"name": "distributions", "src": "// Means of all supported distributions (parameterizations in README).\na ~ Normal(1, 4)         // 1\nb ~ Uniform(1, 3)        // 2\nc ~ Laplace(1, 2)        // 1\nd ~ Logistic(-1, 1)      // -1\ne ~ Exponential(2)       // 0.5\nf ~ Gamma(2, 3)          // shape * scale = 6\ng ~ Pareto(1, 3)         // alpha * xm / (alpha - 1) = 1.5\nh ~ Student-t(5)         // 0\nquery mean(a)\nquery mean(b)\nquery mean(c)\nquery mean(d)\nquery mean(e)\nquery mean(f)\nquery mean(g)\nquery mean(h)\n"}, {"name": "error-self-reference", "src": "// Rejected: the new kernel of x would depend on x itself, which violates\n// the paper's assumption.\nx ~ Normal(0, 1)\nx := x + 1\n"}, {"name": "error-later-variable", "src": "// Rejected: x would depend on y, which was introduced after x, so the\n// dependency graph would have the cycle x -> y -> x.\nx ~ Normal(0, 1)\ny ~ Normal(x, 1)\nx := y\n"}, {"name": "error-if-later-variable", "src": "// Rejected: after the if, x's kernel would depend on the guard variable y,\n// which was introduced after x (if-merge: dep = dep(B) U dep(K1) U dep(K2)).\nx ~ Normal(0, 1)\ny ~ Normal(0, 1)\nif y > 0 then { x := 1 } else { skip }\n"}, {"name": "error-while", "src": "// Rejected: the semantics of while is not defined yet.\nx := 0\nwhile x < 3 do { skip }\n"}];
+  const $ = id => document.getElementById(id);
+  const src = $("pp-src"), gutter = $("pp-gutter"), sel = $("pp-example"), runBtn = $("pp-run"), status = $("pp-status");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  let errLine = null;
+
+  EXAMPLES.forEach((e, i) => sel.add(new Option(e.name + ".ppl", i)));
+  sel.add(new Option("(edited)", "edited"));
+  sel.options[sel.options.length - 1].hidden = true;
+
+  function paintGutter() {
+    const n = src.value.split("\n").length;
+    let h = "";
+    for (let i = 1; i <= n; i++) h += (i === errLine ? `<span class="bad">${i}</span>` : i) + "\n";
+    gutter.innerHTML = h;
+    gutter.scrollTop = src.scrollTop;
+  }
+  src.addEventListener("scroll", () => { gutter.scrollTop = src.scrollTop; });
+  src.addEventListener("input", () => { errLine = null; paintGutter(); sel.value = "edited"; });
+  src.addEventListener("keydown", e => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); return; }
+    if (e.key === "Tab" && !e.shiftKey) {
+      e.preventDefault();
+      const a = src.selectionStart, b = src.selectionEnd;
+      src.setRangeText("  ", a, b, "end");
+      src.dispatchEvent(new Event("input"));
+    }
+  });
+  sel.addEventListener("change", () => {
+    if (sel.value === "edited") return;
+    src.value = EXAMPLES[+sel.value].src; errLine = null; paintGutter(); run();
+  });
+
+  const fmt = v => {
+    if (!isFinite(v)) return String(v);
+    if (v !== 0 && Math.abs(v) < 1e-9) return v.toExponential(3);
+    return String(+v.toPrecision(10));
+  };
+  const table = (rows, head) => rows.length
+    ? `<div class="tbl-wrap"><table class="pp-table"><thead><tr>${head.map(h => `<th${h === "value" ? ' style="text-align:right"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`
+    : `<p class="pp-empty">empty</p>`;
+  const stateTable = ps => table(ps.map(p => `<tr><td class="v">${esc(p.x)}</td><td>${esc(p.depText)}</td><td>${esc(p.body)}</td></tr>`), ["var", "dep(K)", "kernel K"]);
+
+  function render(r) {
+    if (r.error) {
+      const e = r.error, where = e.line ? ` (line ${e.line})` : "";
+      const head = e.kind === "parse" ? "Parse error" : e.kind === "stuck" ? "Stuck" : e.kind === "limit" ? "Stopped" : "Error";
+      const msg = e.kind === "parse" || e.kind === "stuck" || e.kind === "limit" ? e.detail : e.msg + (e.detail ? ` — ${e.detail}` : "");
+      status.className = "run-status err";
+      status.innerHTML = `<b>✗ ${head}${where}</b><br><code>${esc(msg)}</code>`;
+      errLine = e.line;
+    } else {
+      status.className = "run-status ok";
+      status.innerHTML = `<b>✓ Terminated</b> &nbsp;<code>&lt;k&gt; .K &lt;/k&gt;</code>`;
+      errLine = null;
+    }
+    paintGutter();
+    $("pp-results").innerHTML = table(r.results.map(q =>
+      `<tr><td class="ln">line ${q.line}</td><td>${esc(q.label)}</td><td class="num" title="${q.value}">${fmt(q.value)}</td></tr>`), ["", "query", "value"]);
+    $("pp-pstate").innerHTML = r.error && r.error.kind === "parse" ? `<p class="pp-empty">not run</p>` : stateTable(r.pstate);
+    $("pp-order").textContent = r.order.length ? r.order.join(" → ") : "empty";
+    $("pp-snaps").innerHTML = r.snapshots.length ? r.snapshots.map(s =>
+      `<details class="snap"><summary>Snapshot ${s.n} · <code>observe(${esc(s.B)})</code> · line ${s.line}</summary>${stateTable(s.pstate)}</details>`).join("")
+      : `<p class="pp-empty">none</p>`;
+  }
+
+  // Run in a worker so long grid integrations never block the page; fall back to the main thread.
+  let worker = null, timer = null;
+  function stop() {
+    if (worker) { worker.terminate(); worker = null; }
+    clearInterval(timer); runBtn.textContent = "Run ▸";
+  }
+  function runHere(code) {
+    try { render(PPLFactory().run(code)); }
+    catch (err) { status.className = "run-status err"; status.innerHTML = `<b>✗ Internal error</b><br><code>${esc(err.message)}</code>`; }
+  }
+  function run() {
+    stop();
+    const code = src.value, t0 = performance.now();
+    let w;
+    try {
+      const blob = new Blob([PPLFactory.toString() + "\nconst P = PPLFactory();\nonmessage = e => postMessage(P.run(e.data));"], { type: "text/javascript" });
+      w = new Worker(URL.createObjectURL(blob));
+    } catch (_) { w = null; }
+    if (!w) { runHere(code); return; }
+    worker = w;
+    runBtn.textContent = "Stop ■";
+    status.className = "run-status"; status.textContent = "Running…";
+    timer = setInterval(() => { status.textContent = `Running… ${((performance.now() - t0) / 1000).toFixed(1)} s`; }, 200);
+    w.onmessage = e => { stop(); render(e.data); };
+    w.onerror = e => { e.preventDefault(); stop(); runHere(code); };
+    w.postMessage(code);
+  }
+  runBtn.addEventListener("click", () => {
+    if (worker) { stop(); status.className = "run-status err"; status.innerHTML = "<b>✗ Stopped</b>"; return; }
+    run();
+  });
+
+  src.value = EXAMPLES[0].src; sel.value = "0"; paintGutter(); run();
 })();
 </script>
 </body>
