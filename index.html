@@ -87,7 +87,13 @@
   .sub-head { scroll-margin-top: 80px; }
 
   /* ---------- semantics interpreter ---------- */
-  .interp-cta { margin-top: 120px; padding: 0 16px 64px; text-align: center; }
+  /* Concrete domain: a misty blue-grey band (from the paper's lower-bound blue), with lighter cards. */
+  .concrete {
+    --bg: #fafbfc; --panel: #f2f4f7; --rule: rgba(30, 40, 60, .14);
+    background: #dfe4ea; padding-top: 120px; padding-bottom: 120px;
+  }
+  .concrete .card { border: 1px solid var(--rule); }
+  .interp-cta { padding: 0 16px 72px; text-align: center; }
   .cta-eyebrow { display: inline-flex; align-items: center; gap: 14px; font-size: 11px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
   .cta-eyebrow::before, .cta-eyebrow::after { content: ""; width: 36px; height: 1px; background: currentColor; opacity: .6; }
   .interp-cta p { margin-top: 18px; font: 400 clamp(26px, 3.2vw, 40px)/1.25 "Times New Roman", Times, "Liberation Serif", serif; text-wrap: balance; }
@@ -500,6 +506,9 @@
     </div>
   </div>
 
+</section>
+
+<section class="concrete" id="concrete">
   <div class="interp-cta">
     <span class="cta-eyebrow">Concrete Domain</span>
     <p>Curious what lies beneath the abstraction?<br><em>Step into the concrete domain!</em></p>
