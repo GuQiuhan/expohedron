@@ -60,6 +60,30 @@
   .nav .links.right { justify-content: flex-end; }
   .nav .links a { opacity: .75; transition: opacity .2s; }
   .nav .links a:hover { opacity: 1; }
+  .nav .links button { font-size: inherit; letter-spacing: inherit; text-transform: inherit; opacity: .75; transition: opacity .2s; }
+  .nav .links button:hover, .nav .links button[aria-expanded="true"] { opacity: 1; }
+
+  /* ---------- playground menu: a white drawer from the left ---------- */
+  .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(0, 0, 0, .35); opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; inset: 0 auto 0 0; z-index: 21; width: min(400px, 100vw); overflow-y: auto;
+    background: #ffffff; color: #000000; padding: 22px 32px 40px;
+    transform: translateX(-100%); visibility: hidden;
+    transition: transform .35s cubic-bezier(.2, .7, .2, 1), visibility 0s linear .35s;
+  }
+  .drawer.open { transform: none; visibility: visible; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+  .drawer-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 22px; border-bottom: 1px solid #e5e5e5; }
+  .drawer-top span { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .drawer-close { font-size: 20px; line-height: 1; padding: 4px; margin-right: -4px; }
+  .drawer h4 { font: 400 12px/1 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: #707070; margin: 34px 0 6px; }
+  .drawer ul { list-style: none; }
+  .drawer li a { display: block; padding: 10px 0; font-size: 15px; border-bottom: 1px solid transparent; }
+  .drawer li a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  @media (max-width: 760px) { .drawer { padding: 18px 16px 32px; } }
+  @media (prefers-reduced-motion: reduce) { .drawer, .drawer.open, .scrim { transition: none; } }
+  .sub-head { scroll-margin-top: 80px; }
+
   .wordmark { font: 500 14px/1 var(--sans); letter-spacing: .38em; text-transform: uppercase; padding-left: .38em; }
 
   /* ---------- hero ---------- */
@@ -253,7 +277,7 @@
 
 <nav class="nav">
   <div class="links left">
-    <a href="#playground">Playground</a>
+    <button id="menu-toggle" aria-expanded="false" aria-controls="menu">Playground</button>
     <a href="#top">Paper</a>
   </div>
   <a class="wordmark" href="#top">Expohedron</a>
@@ -262,6 +286,20 @@
     <a href="#top">Authors</a>
   </div>
 </nav>
+
+<div class="scrim" id="menu-scrim"></div>
+<aside class="drawer" id="menu" aria-label="Playground menu" inert>
+  <div class="drawer-top">
+    <span>Playground</span>
+    <button class="drawer-close" id="menu-close" aria-label="Close menu">✕</button>
+  </div>
+  <h4>Abstract Domain</h4>
+  <ul>
+    <li><a href="#bayes">Bayesian Inference</a></li>
+    <li><a href="#bnn">Bayesian Neural Network</a></li>
+  </ul>
+  <h4>Concrete Domain</h4>
+</aside>
 
 <header class="hero" id="top">
   <div class="hero-text">
@@ -305,7 +343,7 @@
 
 <section id="playground">
   <h2 class="section-title">Playground</h2>
-  <div class="sub-head first">
+  <div class="sub-head first" id="bayes">
     <h3>Bayesian Inference</h3>
     <button class="replay" id="replay">Replay ↻</button>
   </div>
@@ -973,6 +1011,22 @@ const BNNExact = (() => {
     return { atom: null, pdf: y => { let t = 0; for (const [w, m, sd] of combos) t += w * phi(y, m, sd); return t; } };
   }
   return { hidden, output };
+})();
+
+// Playground menu (left drawer).
+(() => {
+  const toggle = document.getElementById("menu-toggle"), menu = document.getElementById("menu"),
+        scrim = document.getElementById("menu-scrim"), close = document.getElementById("menu-close");
+  const set = open => {
+    menu.classList.toggle("open", open); scrim.classList.toggle("open", open);
+    menu.inert = !open; toggle.setAttribute("aria-expanded", String(open));
+    if (open) close.focus(); else if (menu.contains(document.activeElement)) toggle.focus();
+  };
+  toggle.addEventListener("click", () => set(!menu.classList.contains("open")));
+  close.addEventListener("click", () => set(false));
+  scrim.addEventListener("click", () => set(false));
+  menu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => set(false)));
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && menu.classList.contains("open")) set(false); });
 })();
 
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
