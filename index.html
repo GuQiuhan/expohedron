@@ -88,14 +88,33 @@
 
   /* ---------- semantics interpreter ---------- */
   /* Concrete domain: a black intro band in the hero's palette, then the playground's
-     card layout on cocoa, the deep shade of the page's cream. */
+     card layout on a rich espresso brown. */
   .concrete {
-    --bg: #3b332b; --panel: #5a4f44; --ink: #f3ece0;
-    --muted: rgba(243, 236, 224, .66); --rule: rgba(243, 236, 224, .18);
-    --accent: #e8a07a; --good: #a8d5a0; --bad: #f19a86;
-    background: #4a4036; color: var(--ink); padding: 0;
+    --bg: #2a1d16; --panel: #4a3429; --ink: #f4eadc;
+    --muted: rgba(244, 234, 220, .66); --rule: rgba(244, 234, 220, .16);
+    --accent: #e9a77f; --good: #a8d5a0; --bad: #f4a08c;
+    background: #3a2820; color: var(--ink); padding: 0;
   }
   .concrete select { color-scheme: dark; }
+  /* Run: a filled pill in the motto's orange; while running it turns into an outlined Stop with a pulse. */
+  .run-btn {
+    display: inline-flex; align-items: center; gap: 8px; flex: none;
+    padding: 9px 20px 9px 16px; border-radius: 999px; border: 1px solid #e2734a;
+    background: #e2734a; color: #1f140e;
+    font: 700 11.5px/1 var(--sans); letter-spacing: .18em; text-transform: uppercase;
+    box-shadow: 0 6px 18px -8px rgba(226, 115, 74, .7);
+    transition: background .2s, color .2s, box-shadow .2s, transform .2s;
+  }
+  .run-btn svg { width: 10px; height: 10px; fill: currentColor; }
+  .run-btn:hover { background: #f4eadc; border-color: #f4eadc; transform: translateY(-1px); box-shadow: 0 10px 22px -10px rgba(244, 234, 220, .6); }
+  .run-btn:active { transform: none; }
+  .run-btn.running { background: transparent; color: #e2734a; box-shadow: none; }
+  .run-btn.running:hover { background: rgba(226, 115, 74, .12); border-color: #e2734a; color: #e2734a; }
+  .run-btn .pulse { width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: run-pulse 1s ease-in-out infinite; }
+  @keyframes run-pulse { 50% { opacity: .25; transform: scale(.7); } }
+  @media (prefers-reduced-motion: reduce) { .run-btn, .run-btn .pulse { transition: none; animation: none; } }
+  /* the code box: cream paper with dark code */
+  .concrete .editor-wrap { --bg: #f6efe3; --ink: #2a1d16; --muted: rgba(42, 29, 22, .55); --rule: rgba(42, 29, 22, .2); --bad: #b03a2a; color: var(--ink); }
   .interp-cta { --ink: #f3e7b4; --muted: rgba(243, 231, 180, .62); background: #0b0b0a; color: var(--ink); padding: 64px 32px 60px; text-align: center; }
   .concrete-body { padding: 96px 32px 120px; }
   @media (max-width: 760px) { .interp-cta { padding: 48px 16px; } .concrete-body { padding: 72px 16px 80px; } }
@@ -529,7 +548,7 @@
       <div class="card-head"><span class="step">01 — Program</span><h3>Source</h3></div>
       <div class="interp-bar">
         <select id="pp-example" aria-label="Example program"></select>
-        <button class="chip primary" id="pp-run">Run ▸</button>
+        <button class="run-btn" id="pp-run"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.5 8.5 5 2.5 8.5Z"/></svg><span>Run</span></button>
       </div>
       <div class="editor-wrap">
         <div class="editor-gutter" id="pp-gutter" aria-hidden="true">1</div>
@@ -2258,7 +2277,7 @@ function PPLFactory() {
   let worker = null, timer = null;
   function stop() {
     if (worker) { worker.terminate(); worker = null; }
-    clearInterval(timer); runBtn.textContent = "Run ▸";
+    clearInterval(timer); runBtn.classList.remove("running"); runBtn.innerHTML = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 1.5 8.5 5 2.5 8.5Z"/></svg><span>Run</span>';
   }
   function runHere(code) {
     try { render(PPLFactory().run(code)); }
@@ -2274,7 +2293,7 @@ function PPLFactory() {
     } catch (_) { w = null; }
     if (!w) { runHere(code); return; }
     worker = w;
-    runBtn.textContent = "Stop ■";
+    runBtn.classList.add("running"); runBtn.innerHTML = '<i class="pulse" aria-hidden="true"></i><span>Stop</span>';
     status.className = "run-status"; status.textContent = "Running…";
     timer = setInterval(() => { status.textContent = `Running… ${((performance.now() - t0) / 1000).toFixed(1)} s`; }, 200);
     w.onmessage = e => { stop(); render(e.data); };
